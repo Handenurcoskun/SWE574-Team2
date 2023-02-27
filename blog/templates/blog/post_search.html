@@ -1,0 +1,28 @@
+{% extends "blog/base.html" %}
+{% block content %}
+  {% if count > 0 %}
+    {% for post in posts %}
+      <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+        <div class="media-body">
+          <div class="article-metadata">
+            <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+            <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+          </div>
+          <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+          <p class="article-content">{{ post.content }}</p>
+          <a class="article-link" href="{{ post.link }}" target="_blank">{{ post.link }}</a>
+          <div>
+            {% for tag in post.tags.all %}
+              <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
+            {% endfor %}
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  {% else %}
+    <div>
+        <a class="article-content">No post found!</a>
+    </div>
+  {% endif %}
+{% endblock content %}

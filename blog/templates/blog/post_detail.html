@@ -1,0 +1,84 @@
+{% extends "blog/base.html" %}
+{% block content %}
+  <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
+        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+        {% if object.author == user %}
+        <div>
+          <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' object.id %}">Update the Post</a>
+          <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete the Post</a>
+        </div>
+        {% endif %}
+        {% if user != object.author %}
+          <form class="" action = "{% url 'post-favourites' object.pk %}" method="POST">
+            {% csrf_token %}
+            {% if save %}
+                <button type="submit",  name="post_id" , value ="{{ object.id }}" , class="btn btn-secondary">Remove from Favourites</button>
+            {% else %}
+                <button type="submit",  name="post_id" , value ="{{ object.id }}" , class="btn btn-primary">Add to Favourites</button>
+            {% endif %}
+         </form>
+       {% endif %}
+      </div>
+      <h2 class="article-title">{{ object.title }}</h2>
+      <p class="article-content">{{ object.content }}</p>
+      <a class="article-link" href="{{ object.link }}" target="_blank" name="link" id="preview_link{{ object.id }}" onmouseover="loadPreview('{{ object.id }}', '{{ object.link }}')">{{ object.link }}</a>
+      <div>
+        {% for tag in post.tags.all %}
+          <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="spinner-border text-success not-visible" id="preview_loader{{ object.id }}" role="status">
+          <span class="sr-only">Loading...</span>
+    </div>
+    <div class="card mt-4 not-visible" style="width: 18rem;" id="preview_card_div{{ object.id }}">
+        <img id="preview_image{{ object.id }}" class="card-img-top" src="" alt="Card" style="display: none">
+        <div class="card-body" style="display: none" id="preview_card_body{{ object.id }}">
+            <h5 class="card-title" id="preview_title{{ object.id }}"></h5>
+            <p class="card-text" id="preview_desc{{ object.id }}"></p>
+            <a id="preview_link_btn{{ object.id }}" href="#" target="_blank" class="btn btn-primary">Go to the Page</a>
+        </div>
+    </div>
+  </article>
+  <script>
+    function loadPreview(id, link) {
+        console.log(id, link);
+        console.log('preview_title' + id);
+        title = document.getElementById('preview_title' + id);
+        desc = document.getElementById('preview_desc' + id);
+        image = document.getElementById('preview_image' + id);
+        link_btn = document.getElementById('preview_link_btn' + id);
+        card_div = document.getElementById('preview_card_div' + id);
+        card_body = document.getElementById('preview_card_body' + id);
+        loader = document.getElementById('preview_loader' + id);
+        $.ajax({
+            url: '{% url "post-preview" %}',
+            data: {
+                'link': link
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                loader.classList.remove('not-visible');
+                card_div.classList.add('not-visible');
+            },
+            success: function (response) {
+                card_div.classList.remove('not-visible');
+                title.innerHTML = response.title
+                desc.innerHTML = response.description
+                image.src = response.image
+                link_btn.href = link
+                loader.classList.add('not-visible');
+                image.style.display = "block"
+                card_body.style.display = "block"
+            },
+            error: function (error) {
+                console.log(error);
+            },
+        });
+    };
+  </script>
+{% endblock content %}

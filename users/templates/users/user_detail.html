@@ -1,0 +1,32 @@
+{% extends "blog/base.html" %}
+{% block title %}
+  <h1 class="mb-3">User Detail</h1>
+{% endblock title %}
+{% block content %}
+  <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.user.profile.image.url }}">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'user-posts' object.user.username %}">{{ object.user.username }}</a>
+        <small class="text-muted">{{ object.created }}</small>
+      </div>
+      {% if follow %}
+        <form class="" action="{% url 'profiles:follow-unfollow' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="profile_pk" value={{ object.pk }}>
+          <button type="submit" name="button" class="btn btn-secondary">Unfollow</button>
+        </form>
+      {% else %}
+        <form class="" action="{% url 'profiles:follow-unfollow' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="profile_pk" value={{ object.pk }}>
+          <button type="submit" name="button" class="btn btn-primary">Follow</button>
+        </form>
+      {% endif %}
+
+      <div class="">
+
+      </div>
+    </div>
+  </article>
+{% endblock content %}

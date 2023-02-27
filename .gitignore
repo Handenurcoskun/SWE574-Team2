@@ -1,0 +1,5 @@
+sent_emails/*
+django_project/__pycache__/*
+users/__pycache__/*
+users/__pycache__/*
+data/*

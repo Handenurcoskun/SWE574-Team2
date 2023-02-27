@@ -1,0 +1,93 @@
+{% extends "blog/base.html" %}
+{% block content %}
+  {% for post in posts %}
+    <article class="media content-section">
+      <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+      <div class="media-body">
+        <div class="article-metadata">
+          <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+          <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+        </div>
+        <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+        <p class="article-content">{{ post.content }}</p>
+        <a class="article-link" href="{{ post.link }}" target="_blank" name="link" id="preview_link{{ post.id }}" onmouseover="loadPreview('{{ post.id }}', '{{ post.link }}')">{{ post.link }}</a>
+        <div>
+          {% for tag in post.tags.all %}
+            <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="spinner-border text-success not-visible" id="preview_loader{{ post.id }}" role="status">
+            <span class="sr-only">Loading...</span>
+      </div>
+      <div class="card mt-4 not-visible" style="width: 18rem;" id="preview_card_div{{ post.id }}">
+          <img id="preview_image{{ post.id }}" class="card-img-top" src="" alt="Card" style="display: none">
+          <div class="card-body" style="display: none" id="preview_card_body{{ post.id }}">
+              <h5 class="card-title" id="preview_title{{ post.id }}"></h5>
+              <p class="card-text" id="preview_desc{{ post.id }}"></p>
+              <a id="preview_link_btn{{ post.id }}" href="#" target="_blank" class="btn btn-primary">Go to the Page</a>
+          </div>
+      </div>
+    </article>
+  {% endfor %}
+  {% if is_paginated %}
+    {% if page_obj.has_previous %}
+      <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Prev</a>
+    {% endif %}
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <a class="btn btn-info mb-4" href="?page={{num}}">{{num}}</a>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a class="btn btn-outline-info mb-4" href="?page={{num}}">{{num}}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <a class="btn btn-outline-info mb-4" href="?page={{page_obj.next_page_number}}">Next</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+  {% endif %}
+  <script>
+    function loadPreview(id, link) {
+        console.log(id, link);
+        console.log('preview_title' + id);
+        title = document.getElementById('preview_title' + id);
+        desc = document.getElementById('preview_desc' + id);
+        image = document.getElementById('preview_image' + id);
+        link_btn = document.getElementById('preview_link_btn' + id);
+        card_div = document.getElementById('preview_card_div' + id);
+        card_body = document.getElementById('preview_card_body' + id);
+        loader = document.getElementById('preview_loader' + id);
+        $.ajax({
+            url: '{% url "post-preview" %}',
+            data: {
+                'link': link
+            },
+            dataType: 'json',
+            beforeSend: function () {
+                loader.classList.remove('not-visible');
+                card_div.classList.add('not-visible');
+            },
+            success: function (response) {
+                card_div.classList.remove('not-visible');
+                title.innerHTML = response.title
+                desc.innerHTML = response.description
+                image.src = response.image
+                link_btn.href = link
+                loader.classList.add('not-visible');
+                image.style.display = "block"
+                card_body.style.display = "block"
+            },
+            error: function (error) {
+                console.log(error);
+            },
+        });
+    };
+  </script>
+{% endblock content %}
+{% block content2 %}
+  <div class="content-section">
+    <h3>Quick Access</h3>
+      <h4><a class="article-title" href="{% url 'favourite-posts' %}">Favourites</a></h4>
+  </div>
+{% endblock content2 %}

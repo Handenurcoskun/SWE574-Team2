@@ -1,0 +1,31 @@
+
+version: '3'
+
+services:
+  web:
+    build: .
+    command: bash -c "pip install -r requirements.txt && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    container_name: SWE573_Project
+    volumes:
+      - .:/SWE573_Project
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:8.0
+    expose:
+      - 3306
+    ports:
+    - "3306:3306"
+    environment:
+      MYSQL_DATABASE: 'swe573-mysql'
+      MYSQL_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: '1234qwer'
+    volumes:
+      - ./data/mysql/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
