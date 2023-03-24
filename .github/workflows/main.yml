@@ -44,11 +44,12 @@ jobs:
       - name: Setup SSH key
         run: |
           echo "${{ secrets.PEM_FILE }}" | base64 --decode > private_key.pem
-          sudo chmod 600 private_key.pem
-          ssh-keyscan github.com >> known_hosts
-          sudo chmod 644 known_hosts
+          chmod 600 private_key.pem
+          ssh-keyscan 18.159.211.121 >> known_hosts
+          chmod 644 known_hosts
         env:
           PEM_FILE: ${{ secrets.PEM_FILE }}
+      
 
       - name: Deploy to EC2
         run: |
