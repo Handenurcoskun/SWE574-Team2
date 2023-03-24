@@ -55,5 +55,6 @@ jobs:
       - name: Deploy to EC2
         run: |
           scp -i private_key.pem deploy.sh ubuntu@${{ secrets.EC2_HOST }}:/tmp
+          echo ${{ steps.login-ecr.outputs.registry }}
           ssh -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} 'chmod +x /tmp/deploy.sh && /tmp/deploy.sh ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPO }}:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}'
           rm -f private_key.pem

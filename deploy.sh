@@ -13,4 +13,4 @@ docker rm $(docker ps -aq) -f || true
 docker pull $image_name
 
 # Run the latest container
-docker run -d --name your_container_name --restart always -p 80:80 $image_name
+$ docker run -d --name my_space --restart always -p 80:80 $image_name -w /SWE573_Project $image_name sh -c "pip install -r requirements.txt && python manage.py runserver 0.0.0.0:80"
