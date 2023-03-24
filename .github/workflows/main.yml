@@ -44,6 +44,7 @@ jobs:
       - name: Setup SSH key
         run: |
           echo "${{ secrets.PEM_FILE }}" | base64 --decode > private_key.pem
+          echo "${{ secrets.PEM_FILE }}" | base64 --decode
           sudo chmod 600 private_key.pem
           ssh-keyscan github.com >> known_hosts
           sudo chmod 644 known_hosts
