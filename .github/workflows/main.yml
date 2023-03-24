@@ -45,6 +45,7 @@ jobs:
         run: |
           echo "${{ secrets.PEM_FILE }}" | base64 --decode > private_key.pem
           chmod 600 private_key.pem
+          mkdir -p $HOME/.ssh
           cp known_hosts $HOME/.ssh/known_hosts
         env:
           PEM_FILE: ${{ secrets.PEM_FILE }}
