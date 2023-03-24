@@ -1,5 +1,9 @@
 sent_emails/*
 django_project/__pycache__/*
 users/__pycache__/*
-users/__pycache__/*
+blog/__pycache__/*
+users/migrations/__pycache__/*
+blog/migrations/__pycache__/*
 data/*
+.idea
+.env
