@@ -46,6 +46,7 @@ jobs:
           echo "${{ secrets.PEM_FILE }}" | base64 --decode > private_key.pem
           chmod 600 private_key.pem
           mkdir -p ~/.ssh
+          touch ~/.ssh/known_hosts
           ssh-keyscan 18.159.211.121 >> ~/.ssh/known_hosts
           chmod 644 known_hosts
         env:
