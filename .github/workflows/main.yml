@@ -51,9 +51,9 @@ jobs:
           chmod 644 ~/.ssh/known_hosts
         env:
           PEM_FILE: ${{ secrets.PEM_FILE }}
-      
+
       - name: Deploy to EC2
         run: |
-          scp -v -i private_key.pem deploy.sh ubuntu@18.159.211.121:/tmp
-          ssh -v -i private_key.pem ubuntu@18.159.211.121 'bash -s' < /tmp/deploy.sh ${{ steps.login-ecr.outputs.registry }}/myspace-ecs:${{ github.sha }}
+          scp -i private_key.pem deploy.sh ubuntu@18.159.211.121:/tmp
+          ssh -i private_key.pem ubuntu@18.159.211.121 'chmod +x /tmp/deploy.sh && /tmp/deploy.sh ${{ steps.login-ecr.outputs.registry }}/myspace-ecs:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}'
           rm -f private_key.pem
