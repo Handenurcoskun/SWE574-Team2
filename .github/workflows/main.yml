@@ -45,15 +45,14 @@ jobs:
         run: |
           echo "${{ secrets.PEM_FILE }}" | base64 --decode > private_key.pem
           chmod 600 private_key.pem
-          mkdir -p $HOME/.ssh
-          cp known_hosts $HOME/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          ssh-keyscan 18.159.211.121 > ~/.ssh/known_hosts
+          chmod 644 known_hosts
         env:
           PEM_FILE: ${{ secrets.PEM_FILE }}
-
+      
       - name: Deploy to EC2
         run: |
-          echo "Generated private_key.pem SHA:"
-          sha256sum private_key.pem
           scp -v -i private_key.pem deploy.sh ubuntu@18.159.211.121:/tmp
-          ssh -v -i private_key.pem ubuntu@18.159.211.121 'bash -s' < /tmp/deploy.sh ${{ steps.login-ecr.outputs.registry }}/your-repo-name:${{ github.sha }}
+          ssh -v -i private_key.pem ubuntu@18.159.211.121 'bash -s' < /tmp/deploy.sh ${{ steps.login-ecr.outputs.registry }}/myspace-ecs:${{ github.sha }}
           rm -f private_key.pem
