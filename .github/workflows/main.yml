@@ -27,7 +27,7 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: 377140207735.dkr.ecr.eu-central-1.amazonaws.com/myspace-ecs
+          REPOSITORY: myspace-ecs
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
