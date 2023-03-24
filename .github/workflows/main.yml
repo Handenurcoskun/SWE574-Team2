@@ -27,7 +27,7 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: myspace-ecs
+          REPOSITORY: ${{ secrets.ECR_REPO }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
@@ -47,13 +47,13 @@ jobs:
           chmod 600 private_key.pem
           mkdir -p ~/.ssh
           touch ~/.ssh/known_hosts
-          ssh-keyscan 18.159.211.121 >> ~/.ssh/known_hosts
+          ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
         env:
           PEM_FILE: ${{ secrets.PEM_FILE }}
 
       - name: Deploy to EC2
         run: |
-          scp -i private_key.pem deploy.sh ubuntu@18.159.211.121:/tmp
-          ssh -i private_key.pem ubuntu@18.159.211.121 'chmod +x /tmp/deploy.sh && /tmp/deploy.sh ${{ steps.login-ecr.outputs.registry }}/myspace-ecs:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}'
+          scp -i private_key.pem deploy.sh ubuntu@${{ secrets.EC2_HOST }}:/tmp
+          ssh -i private_key.pem ubuntu@${{ secrets.EC2_HOST }} 'chmod +x /tmp/deploy.sh && /tmp/deploy.sh ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPO }}:${{ github.sha }} ${{ steps.login-ecr.outputs.registry }}'
           rm -f private_key.pem
