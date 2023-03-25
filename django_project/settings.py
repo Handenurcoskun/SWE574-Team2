@@ -16,7 +16,8 @@ import os
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 
-load_dotenv()
+if os.environ.get('DJANGO_ENV') == 'development':
+    load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,9 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-DEBUG = os.environ['DEBUG']
-SECRET_KEY = os.environ['SECRET_KEY']
-ALLOWED_HOSTS = os.environ['ALLOWED_HOSTS'].split(',')
+DEBUG = bool(os.environ.get('DEBUG', False))
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback_secret_key')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 
