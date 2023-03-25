@@ -13,6 +13,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
+from urllib.parse import urlparse
+from dotenv import load_dotenv
+
+if os.environ.get('DJANGO_ENV') == 'development':
+    load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,14 +26,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*j0stp4&ma49(00g2*fn=ye4-8bu2@0a0=)=e2t(v^^g1@kg54'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['44.204.78.50', '127.0.0.1', 'localhost']
-
+DEBUG = bool(os.environ.get('DEBUG', False))
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback_secret_key')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 
@@ -78,14 +79,17 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+DATABASE_URL = os.getenv('DATABASE_URL')
+url = urlparse(DATABASE_URL)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'swe573-mysql',
-        'USER': 'root',
-        'PASSWORD': '1234qwer',
-        'HOST': 'db',
-        'PORT': '3306',
+        'NAME': url.path[1:],
+        'USER': url.username,
+        'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port,
     }
 }
 
