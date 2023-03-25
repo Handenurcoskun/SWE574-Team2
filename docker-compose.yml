@@ -11,9 +11,12 @@ services:
       - .:/SWE573_Project
     ports:
       - "8000:8000"
+    networks:
+      - my_network
     depends_on:
       db:
         condition: service_healthy
+
   db:
     image: mysql:8.0
     expose:
@@ -28,3 +31,9 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       timeout: 20s
       retries: 10
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
