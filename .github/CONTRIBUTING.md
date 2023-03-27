@@ -46,7 +46,7 @@ Remember to keep the issue up to date by adding comments, attaching relevant fil
 
 2. Create a Jira ticket for each new feature, bug fix, or task you're working on. Make sure to include a clear description and acceptance criteria.
 
-3. When starting work on a new Jira ticket, create a new feature branch in the Git repository. Use the following naming convention: `<ticket_id>-<short-description>`. For example: SWE-123-add-login-form.
+3. When starting work on a new Jira epic, create a new feature branch in the Git repository for each epic rather than individual tasks. Use the following naming convention: <epic_id>-<short-description>. For example: SWE-123-add-login-module.
 
 4. Commit your changes to the feature branch regularly and push the branch to the remote repository. Follow a commit message convention to maintain a clean and readable commit history. Here's a good starting point: [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
@@ -73,6 +73,6 @@ git push
 
 10. When the PR has been approved by the reviewers, merge the PR and delete the feature branch.
 
-11. If you're working on a Jira ticket that has already been assigned to someone else, create a new branch using the same naming convention as above. Then, create a pull request to merge your branch into the feature branch of the person who is already working on the ticket. Make sure to include a link to the Jira ticket in the pull request description.
+11. If you're working on a Jira ticket that belongs to an epic already assigned to someone else, collaborate with your teammate by working on the same feature branch associated with the epic. Communicate with your team members to ensure that you're working on different tickets within the epic to avoid conflicts. Make sure to regularly pull and push changes to the shared feature branch, and include a link to the relevant Jira ticket in each commit message for better traceability.
 
 12. We encourage pair programming sessions when working on complex features or when collaborating with other team members to enhance the learning experience and ensure higher code quality.
