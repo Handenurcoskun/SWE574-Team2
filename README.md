@@ -45,6 +45,7 @@ Follow the instructions below to set up and run the local development environmen
 1. Make sure you have Python and the required packages installed on your machine. Additionally, ensure that Docker and Docker Compose are installed if you plan to use the containerized local development setup.
 2. Clone the repository to your local machine.
 3. Copy the .env.example file to a new file named .env.
+4. Make sure DJANGO_ENV is set to `development` in your terminal session. This will ensure that the correct settings are used when running the application. See [How to setup environment variables for Windows, Mac and Linux](https://chlee.co/how-to-setup-environment-variables-for-windows-mac-and-linux/)
 
 Bash
 
