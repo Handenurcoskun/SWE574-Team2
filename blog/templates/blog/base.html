@@ -41,8 +41,10 @@
               </form>
               <a class="nav-item nav-link" href="{% url 'following-posts' %}">MySpace</a>
                 <a class="nav-item nav-link" href="{% url 'post-create' %}">Create a Post</a>
+                <a class="nav-item nav-link" href="{% url 'space-create' %}">Create a Space</a>
                 <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
                 <a class="nav-item nav-link" href="{% url 'profiles:profile-list' %}">Users</a>
+                <a class="nav-item nav-link" href="{% url 'spaces-home' %}">Spaces</a>
                 <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
               {% else %}
                 <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>

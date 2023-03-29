@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from users.models import Profile
+from spaces.models import Space, SpaceMembership
 import requests
 from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponseRedirect
@@ -59,6 +61,32 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
+        return super().form_valid(form)
+
+class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
+    model = Post
+    fields = ['title', 'content', 'link', 'tags']
+
+    def get_space(self):
+        space_id = self.kwargs.get('space_id')
+        space = get_object_or_404(Space, id=space_id)
+        return space
+
+    def dispatch(self, request, *args, **kwargs):
+        space = self.get_space()
+        user_membership = SpaceMembership.objects.filter(user=request.user, space=space).first()
+
+        if not user_membership:
+            raise PermissionDenied("You must be a member of this space to create a post.")
+
+        if space.policy == Space.PRIVATE and user_membership.role == SpaceMembership.BASIC_MEMBER:
+            raise PermissionDenied("You must be a Pro Member or Moderator in a private space to create a post.")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.space = self.get_space()
         return super().form_valid(form)
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
