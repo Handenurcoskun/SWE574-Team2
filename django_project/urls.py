@@ -10,6 +10,7 @@ from users import views as user_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("blog.urls")),
+    path('spaces/', include("spaces.urls")),
     path('profiles/', include("users.urls")),
     path('register/', user_views.register, name='register'),
     path('profile/', user_views.profile, name='profile'),

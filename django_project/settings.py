@@ -35,6 +35,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 INSTALLED_APPS = [
     'blog.apps.BlogConfig',
     'users.apps.UsersConfig',
+    'spaces.apps.SpacesConfig',
     "crispy_forms",
     'django.contrib.admin',
     'django.contrib.auth',

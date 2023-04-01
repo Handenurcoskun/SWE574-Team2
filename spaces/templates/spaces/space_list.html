@@ -1,0 +1,16 @@
+{% extends "blog/base.html" %}
+{% block content %}
+  {% for space in spaces %}
+    <article class="media content-section">
+      <img class="rounded-circle article-img" src="{{ space.image.url }}">
+      <div class="media-body">
+        <div class="article-metadata">
+          <a class="mr-2" href="{% url 'user-posts' space.owner.username %}">{{ space.owner }}</a>
+          <small class="text-muted">{{ space.date_created|date:"F d, Y" }}</small>
+        </div>
+        <h2><a class="article-title" href="{% url 'space-detail' space.id %}">{{ space.name }}</a></h2>
+        <p class="article-content">{{ space.description }}</p>
+      </div>
+    </article>
+  {% endfor %}
+{% endblock content %}

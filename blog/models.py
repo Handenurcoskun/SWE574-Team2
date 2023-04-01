@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 from taggit.managers import TaggableManager
+from spaces.models import Space, SpaceMembership
 
 class Post(models.Model):
 
@@ -11,6 +12,7 @@ class Post(models.Model):
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     link = models.URLField(default='')
+    space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='posts', blank=True, null=True)
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
     tags = TaggableManager(blank=True)
 
