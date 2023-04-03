@@ -24,7 +24,7 @@
          <form class="" action = "{% url 'join-space' object.pk %}" method="POST">
            {% csrf_token %}
            {% if is_member %}
-               <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-secondary">Leave</button>
+               <button type="submit", onclick="return confirm('Are you sure to leave?')" name="space_id" , value ="{{ object.id }}" , class="btn btn-secondary">Leave</button>
            {% else %}
                <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-primary">Join</button>
            {% endif %}
