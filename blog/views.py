@@ -75,12 +75,17 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         space = self.get_space()
         user_membership = SpaceMembership.objects.filter(user=request.user, space=space).first()
+        user_existence = False
 
-        if not user_membership:
+        if SpaceMembership.objects.filter(user=request.user, space=space).exists() or request.user == space.owner:
+            user_existence = True
+
+        if not user_existence:
             raise PermissionDenied("You must be a member of this space to create a post.")
 
-        if space.policy == Space.PRIVATE and user_membership.role == SpaceMembership.BASIC_MEMBER:
-            raise PermissionDenied("You must be a Pro Member or Moderator in a private space to create a post.")
+        if request.user != space.owner:
+            if space.policy == Space.PRIVATE and user_membership.role == SpaceMembership.BASIC_MEMBER:
+                raise PermissionDenied("You must be a Pro Member or Moderator in a private space to create a post.")
 
         return super().dispatch(request, *args, **kwargs)
 
