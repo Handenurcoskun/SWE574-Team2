@@ -11,6 +11,10 @@
           <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'space-update' object.id %}">Update the Space</a>
           <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'space-delete' object.id %}">Delete the Space</a>
         </div>
+        <form class="" action = "{% url 'post-create-under-space' object.pk %}" method="POST">
+          {% csrf_token %}
+              <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-primary">Write a Post</button>
+       </form>
         {% endif %}
         {% if user != object.owner %}
           <form class="" action = "{% url 'post-create-under-space' object.pk %}" method="POST">
@@ -24,7 +28,7 @@
          <form class="" action = "{% url 'join-space' object.pk %}" method="POST">
            {% csrf_token %}
            {% if is_member %}
-               <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-secondary">Leave</button>
+               <button type="submit", onclick="return confirm('Are you sure to leave?')" name="space_id" , value ="{{ object.id }}" , class="btn btn-secondary">Leave</button>
            {% else %}
                <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-primary">Join</button>
            {% endif %}
