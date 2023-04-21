@@ -45,6 +45,9 @@ a.article-title:hover {
   text-decoration: none;
 }
 
+.article-policy{
+  color: #444444;}
+
 .article-content {
   white-space: pre-line;
 }
