@@ -14,6 +14,7 @@ class Post(models.Model):
         (PRIVATE, 'Private'),
     ]
 
+    policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
     title = models.CharField(max_length = 100)
     content = models.TextField(max_length = 500)
     date_posted = models.DateTimeField(default=timezone.now)
@@ -22,7 +23,7 @@ class Post(models.Model):
     space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='posts', blank=True, null=True)
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
     tags = TaggableManager(blank=True)
-    policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
+
 
     def __str__(self):
         return self.title
