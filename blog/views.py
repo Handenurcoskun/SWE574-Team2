@@ -31,9 +31,9 @@ class PostListView(ListView):
     def get_queryset(self):
         if self.request.user.is_authenticated:
             return Post.objects.filter(
-                models.Q(policy=False) | models.Q(author=self.request.user)
+                Q(policy=Post.PUBLIC) | Q(author=self.request.user)
             ).order_by('-date_posted')
-        return Post.objects.filter(policy=False).order_by('-date_posted')
+        return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
 
 class UserPostListView(ListView):
     model = Post
