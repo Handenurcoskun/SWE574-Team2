@@ -198,7 +198,7 @@ def posts_of_following_profiles(request):
     posts.append(my_posts)
     if len(posts) > 0:
         qs = sorted(chain(*posts), reverse=True, key=lambda obj: obj.date_posted)
-    return render(request, 'blog/myspace.html')
+    return render(request, 'blog/myspace.html', {'posts': qs})
 
 def FavouritesView(request, pk):
     if request.method == 'POST':
