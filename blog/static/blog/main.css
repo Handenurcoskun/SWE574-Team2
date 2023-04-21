@@ -46,7 +46,9 @@ a.article-title:hover {
 }
 
 .article-policy{
-  <span class="label info">Info</span>;}
+  <span class="label info">Info</span>
+color-profile: sRGB;
+}
 
 .article-content {
   white-space: pre-line;
