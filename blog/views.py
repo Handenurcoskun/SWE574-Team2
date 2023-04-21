@@ -28,12 +28,12 @@ class PostListView(ListView):
     ordering = ['-date_posted']
     paginate_by = 5
 
-    # def get_queryset(self):
-    #     if self.request.user.is_authenticated:
-    #         return Post.objects.filter(
-    #             Q(policy=Post.PUBLIC) | (Q(policy=Post.PRIVATE) & Q(author=self.request.user))
-    #         ).order_by('-date_posted')
-    #     return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Post.objects.filter(
+                Q(policy=Post.PUBLIC) | (Q(policy=Post.PRIVATE) & Q(author=self.request.user))
+            ).order_by('-date_posted')
+        return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
 
 
 class UserPostListView(ListView):
