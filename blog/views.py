@@ -192,7 +192,7 @@ def posts_of_following_profiles(request):
     paginate_by = 5
     qs = None
     for u in users:
-        p = Post.objects.filter(author=u)
+        p = Post.objects.filter(author=u, policy=Post.PUBLIC)
         posts.append(p)
     my_posts = Post.objects.filter(author=request.user)
     posts.append(my_posts)
