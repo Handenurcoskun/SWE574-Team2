@@ -48,7 +48,7 @@ class UserPostListView(ListView):
         return Post.objects.filter(author=user).order_by('-date_posted')
 
     def get_queryset(self):
-        return Post.objects.filter(policy=Post.PUBLIC, author=Post.author).order_by('-date_posted')
+        return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
 
 
 class PostDetailView(LoginRequiredMixin, DetailView):
@@ -101,7 +101,7 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags']
+    fields = ['title', 'content', 'link', 'tags', 'policy']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
