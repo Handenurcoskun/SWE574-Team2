@@ -45,10 +45,10 @@ class UserPostListView(ListView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Post.objects.filter(author=user).order_by('-date_posted')
-
-    def get_queryset_2(self):
-        return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
+        return Post.objects.filter(author=user, policy=Post.PUBLIC).order_by('-date_posted')
+    #
+    # def get_queryset_2(self):
+    #     return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
 
 
 class PostDetailView(LoginRequiredMixin, DetailView):
