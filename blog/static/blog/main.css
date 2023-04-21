@@ -46,6 +46,7 @@ a.article-title:hover {
 }
 
 .article-policy{
+  <span class="label info">Info</span>
   color: #444444;}
 
 .article-content {
