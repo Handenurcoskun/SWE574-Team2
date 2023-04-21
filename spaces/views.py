@@ -83,3 +83,10 @@ def JoinSpaceView(request, pk):
         else:
             space.members.add(request.user.id)
     return HttpResponseRedirect(reverse('space-detail', args=[str(pk)]))
+
+
+def display_posts(request):
+    public_posts = Post.objects.filter(private=False)
+    user_posts = Post.objects.filter(user=request.user)
+    posts = public_posts | user_posts
+    return render(request, 'display_posts.html', {'posts': posts})
