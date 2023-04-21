@@ -47,12 +47,12 @@ class UserPostListView(ListView):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
         return Post.objects.filter(author=user).order_by('-date_posted')
 
-    def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Post.objects.filter(
-                Q(policy=Post.PUBLIC) | (Q(policy=Post.PRIVATE) & Q(author=self.request.user))
-            ).order_by('-date_posted')
-        return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
+    # def get_queryset(self):
+    #     if self.request.user.is_authenticated:
+    #         return Post.objects.filter(
+    #             Q(policy=Post.PUBLIC) | (Q(policy=Post.PRIVATE) & Q(author=self.request.user))
+    #         ).order_by('-date_posted')
+    #     return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
 
 
 class PostDetailView(LoginRequiredMixin, DetailView):
