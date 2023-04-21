@@ -48,7 +48,7 @@ class UserPostListView(ListView):
         return Post.objects.filter(author=user).order_by('-date_posted')
 
     def get_queryset(self):
-        return Post.objects.filter(Q(policy=Post.author.PUBLIC).order_by('-date_posted'))
+        return Post.objects.filter(Q(policy=Post.author.PUBLIC)).order_by(('-date_posted'))
 
 
 
