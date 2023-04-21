@@ -26,15 +26,20 @@
          </form>
        {% endif %}
       </div>
-	  <span class="badge bg-info">{{ object.policy }}</span>
-      <h2 class="article-title">{{ object.title }}</h2>
-      <p class="article-content">{{ object.content }}</p>
-      <a class="article-link" href="{{ object.link }}" target="_blank" name="link" id="preview_link{{ object.id }}" onmouseover="loadPreview('{{ object.id }}', '{{ object.link }}')">{{ object.link }}</a>
-      <div>
-        {% for tag in post.tags.all %}
-          <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
-        {% endfor %}
-      </div>
+	    {% if object.policy == 'public' %}
+	        <span class="badge bg-info">{{ object.policy }}</span>
+	    {% else %}
+		    <span class="badge bg-warning">{{ object.policy }}</span>
+	    {% endif %}
+		  
+		<h2 class="article-title">{{ object.title }}</h2>
+		<p class="article-content">{{ object.content }}</p>
+		<a class="article-link" href="{{ object.link }}" target="_blank" name="link" id="preview_link{{ object.id }}" onmouseover="loadPreview('{{ object.id }}', '{{ object.link }}')">{{ object.link }}</a>
+		<div>
+		{% for tag in post.tags.all %}
+		  <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
+		{% endfor %}
+		</div>
     </div>
     <div class="spinner-border text-success not-visible" id="preview_loader{{ object.id }}" role="status">
           <span class="sr-only">Loading...</span>
