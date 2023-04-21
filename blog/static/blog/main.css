@@ -46,8 +46,13 @@ a.article-title:hover {
 }
 
 .article-policy{
-  <span class="label info">Info</span>
-color-profile: sRGB;
+  color: white;
+  padding: 8px;
+  font-family: Arial;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 3px;
+  margin-bottom: 10px;
 }
 
 .article-content {
