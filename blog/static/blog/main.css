@@ -46,12 +46,7 @@ a.article-title:hover {
 }
 
 .article-policy{
-  color: Blue;
-  padding: 8px;
-  font-family: Arial;
-  font-size: 12px;
-  font-weight: bold;
-  border-radius: 3px;
+    margin-right: 5px;
 }
 
 .article-content {
