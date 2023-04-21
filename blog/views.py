@@ -57,11 +57,18 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags','policy']
+    fields = ['title', 'content', 'link', 'tags']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
+    # def select_policy(request):
+    #     if policy == 'public':
+    #         return True
+    #     else:
+    #         return False
+
 
 class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     model = Post

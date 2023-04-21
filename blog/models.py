@@ -6,15 +6,15 @@ from taggit.managers import TaggableManager
 from spaces.models import Space, SpaceMembership
 
 class Post(models.Model):
-    PUBLIC = 'public'
-    PRIVATE = 'private'
+    # PUBLIC = 'public'
+    # PRIVATE = 'private'
+    #
+    # POLICY_CHOICES = [
+    #     (PUBLIC, 'Public'),
+    #     (PRIVATE, 'Private'),
+    # ]
 
-    POLICY_CHOICES = [
-        (PUBLIC, 'Public'),
-        (PRIVATE, 'Private'),
-    ]
-
-    policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
+    # policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
     title = models.CharField(max_length = 100)
     content = models.TextField(max_length = 500)
     date_posted = models.DateTimeField(default=timezone.now)
