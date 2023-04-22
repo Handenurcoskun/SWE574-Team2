@@ -83,3 +83,5 @@ def JoinSpaceView(request, pk):
         else:
             space.members.add(request.user.id)
     return HttpResponseRedirect(reverse('space-detail', args=[str(pk)]))
+
+

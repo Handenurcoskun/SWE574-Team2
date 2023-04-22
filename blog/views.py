@@ -10,13 +10,9 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from itertools import chain
 from django.db.models import Q
-from django.views.generic import (
-    ListView,
-    DetailView,
-    CreateView,
-    UpdateView,
-    DeleteView
-)
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+
+from . import models
 from .models import Post
 
 def home(request):
@@ -32,6 +28,14 @@ class PostListView(ListView):
     ordering = ['-date_posted']
     paginate_by = 5
 
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Post.objects.filter(
+                Q(policy=Post.PUBLIC) | (Q(policy=Post.PRIVATE) & Q(author=self.request.user))
+            ).order_by('-date_posted')
+        return Post.objects.filter(policy=Post.PUBLIC).order_by('-date_posted')
+
+
 class UserPostListView(ListView):
     model = Post
     template_name = 'blog/user_posts.html'
@@ -41,7 +45,8 @@ class UserPostListView(ListView):
 
     def get_queryset(self):
         user = get_object_or_404(User, username=self.kwargs.get('username'))
-        return Post.objects.filter(author=user).order_by('-date_posted')
+        return Post.objects.filter(author=user, policy=Post.PUBLIC).order_by('-date_posted')
+
 
 class PostDetailView(LoginRequiredMixin, DetailView):
     model = Post
@@ -57,11 +62,12 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags']
+    fields = ['title', 'content', 'link', 'tags', 'policy']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
 
 class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     model = Post
@@ -89,9 +95,10 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
         form.instance.space = self.get_space()
         return super().form_valid(form)
 
+
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags']
+    fields = ['title', 'content', 'link', 'tags', 'policy']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -185,13 +192,13 @@ def posts_of_following_profiles(request):
     paginate_by = 5
     qs = None
     for u in users:
-        p = Post.objects.filter(author=u)
+        p = Post.objects.filter(author=u, policy=Post.PUBLIC)
         posts.append(p)
     my_posts = Post.objects.filter(author=request.user)
     posts.append(my_posts)
     if len(posts) > 0:
         qs = sorted(chain(*posts), reverse=True, key=lambda obj: obj.date_posted)
-    return render(request, 'blog/myspace.html', {'posts':qs})
+    return render(request, 'blog/myspace.html', {'posts': qs})
 
 def FavouritesView(request, pk):
     if request.method == 'POST':
