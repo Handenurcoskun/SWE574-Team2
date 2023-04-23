@@ -1,65 +1,101 @@
 {% extends "blog/base.html" %}
 {% block content %}
-  <article class="media content-section">
-    <img class="rounded-circle article-img" src="{{ object.image.url }}">
-    <div class="media-body">
-      <div class="article-metadata">
-        <a class="mr-2" href="{% url 'user-posts' object.owner.username %}">{{ object.owner }}</a>
-        <small class="text-muted">{{ object.date_created|date:"F d, Y" }}</small>
-        {% if object.owner == user %}
-        <div>
-          <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'space-update' object.id %}">Update the Space</a>
-          <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'space-delete' object.id %}">Delete the Space</a>
-        </div>
-        <form class="" action = "{% url 'post-create-under-space' object.pk %}" method="POST">
-          {% csrf_token %}
-              <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-primary">Write a Post</button>
-       </form>
-        {% endif %}
-        {% if user != object.owner %}
-          <form class="" action = "{% url 'post-create-under-space' object.pk %}" method="POST">
-            {% csrf_token %}
-            {% if is_member %}
-                <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-primary">Write a Post</button>
-            {% endif %}
-         </form>
-       {% endif %}
-       {% if user != object.owner %}
-         <form class="" action = "{% url 'join-space' object.pk %}" method="POST">
-           {% csrf_token %}
-           {% if is_member %}
-               <button type="submit", onclick="return confirm('Are you sure to leave?')" name="space_id" , value ="{{ object.id }}" , class="btn btn-secondary">Leave</button>
-           {% else %}
-               <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-primary">Join</button>
-           {% endif %}
-        </form>
-      {% endif %}
-      </div>
-      <h2 class="article-title">{{ object.name }}</h2>
-      <p class="article-content">{{ object.description }}</p>
-  </article>
-  <div class="container mt-4">
-  <h2>Recent Posts</h2>
-  {% for post in posts %}
     <article class="media content-section">
-      <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
-      <div class="media-body">
-        <div class="article-metadata">
-          <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
-          <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
-        </div>
-        <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-        <p class="article-content">{{ post.content }}</p>
-        <a class="article-link" href="{{ post.link }}" target="_blank">{{ post.link }}</a>
-        <div>
-          {% for tag in post.tags.all %}
-            <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
-          {% endfor %}
-        </div>
-      </div>
+        <img class="rounded-circle article-img" src="{{ object.image.url }}">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{% url 'user-posts' object.owner.username %}">{{ object.owner }}</a>
+                <small class="text-muted">{{ object.date_created|date:"F d, Y" }}</small>
+                {% if object.owner == user %}
+                    <div>
+                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'space-update' object.id %}">Update
+                            the Space</a>
+                        <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'space-delete' object.id %}">Delete the
+                            Space</a>
+                    </div>
+                    <form class="" action="{% url 'post-create-under-space' object.pk %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" , name="space_id" , value="{{ object.id }}" , class="btn btn-primary">
+                            Write a Post
+                        </button>
+                    </form>
+                {% endif %}
+                {% if user != object.owner %}
+                    <form class="" action="{% url 'post-create-under-space' object.pk %}" method="POST">
+                        {% csrf_token %}
+                        {% if is_member %}
+                            <button type="submit" , name="space_id" , value="{{ object.id }}" , class="btn btn-primary">
+                                Write a Post
+                            </button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+                {% if user != object.owner %}
+                    <form class="" action="{% url 'join-space' object.pk %}" method="POST">
+                        {% csrf_token %}
+                        {% if is_member %}
+                            <button type="submit" , onclick="return confirm('Are you sure to leave?')" name="space_id" ,
+                                    value="{{ object.id }}" , class="btn btn-secondary">Leave
+                            </button>
+                        {% else %}
+                            {% if is_pending %}
+                                <button type="submit" , name="pending" , class="btn btn-primary" disabled>Pending
+                                </button>
+                            {% else %}
+                                <button type="submit" , name="space_id" , value="{{ object.id }}" ,
+                                        class="btn btn-primary">Join
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
+            <h2 class="article-title">{{ object.name }}</h2>
+            <p class="article-content">{{ object.description }}</p>
     </article>
-  {% empty %}
-    <p>No posts in this space yet.</p>
-  {% endfor %}
-</div>
+    <div class="container mt-4">
+        <h2>Recent Posts</h2>
+        {% for post in posts %}
+            <article class="media content-section">
+                <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+                        <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+                    </div>
+                    <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+                    <p class="article-content">{{ post.content }}</p>
+                    <a class="article-link" href="{{ post.link }}" target="_blank">{{ post.link }}</a>
+                    <div>
+                        {% for tag in post.tags.all %}
+                            <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <p>No posts in this space yet.</p>
+        {% endfor %}
+    </div>
 {% endblock content %}
+
+{% block content2 %}
+    <div class="content-section">
+        {% if object.owner == user %}
+            <form class="" action="{% url 'join-space' object.pk %}" method="POST">
+                {% csrf_token %}
+                {% for psr in private_space_requests %}
+                    <div>
+                        <a class="mr-2">{{ psr.user }}</a>
+                        <button type="submit" , name="approved" , value="{{ psr.user_id }}" , class="btn btn-primary" ,
+                                style="background-color:green">Onayla
+                        </button>
+                        <button type="submit" , name="declined" , value="{{ psr.user_id }}" , class="btn btn-primary" ,
+                                style="background-color:red"> Reddet
+                        </button>
+                    </div>
+                {% endfor %}
+            </form>
+        {% endif %}
+    </div>
+{% endblock content2 %}

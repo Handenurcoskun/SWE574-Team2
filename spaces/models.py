@@ -48,3 +48,10 @@ class SpaceMembership(models.Model):
 
     class Meta:
         unique_together = ('user', 'space')
+
+
+class PrivateSpaceRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    space = models.ForeignKey(Space, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(default=timezone.now)
+

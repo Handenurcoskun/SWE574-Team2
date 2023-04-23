@@ -18,6 +18,7 @@ from django.views.generic import (
     DeleteView
 )
 from .models import Post
+from django.contrib import messages
 
 def home(request):
     context = {
@@ -74,6 +75,9 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         space = self.get_space()
+        if request.POST.get("link"):
+            if Post.objects.filter(space=space, link=request.POST.get("link")):
+                messages.warning(request, 'There is another post with the same link.')
         user_membership = SpaceMembership.objects.filter(user=request.user, space=space).first()
         user_existence = False
 
