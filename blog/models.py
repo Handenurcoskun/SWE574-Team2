@@ -15,6 +15,7 @@ class Post(models.Model):
     space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='posts', blank=True, null=True)
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
     tags = TaggableManager(blank=True)
+    image = models.ImageField(default='space_default.jpg', upload_to='space_pics', blank=True)
 
     def __str__(self):
         return self.title
