@@ -57,7 +57,7 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags']
+    fields = ['title', 'content', 'link', 'tags', 'image']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -65,7 +65,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags']
+    fields = ['title', 'content', 'link', 'tags', 'image']
 
     def get_space(self):
         space_id = self.kwargs.get('space_id')
@@ -96,7 +96,7 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags']
+    fields = ['title', 'content', 'link', 'tags', 'image']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
