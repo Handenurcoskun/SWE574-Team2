@@ -46,5 +46,8 @@ class SpaceMembership(models.Model):
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=BASIC_MEMBER)
 
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
     class Meta:
         unique_together = ('user', 'space')
