@@ -1,0 +1,34 @@
+<!-- space/members.html -->
+{% extends "blog/base.html" %}
+{% block content %}
+  <h1>Members of {{ object.name }}</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Member</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for membership in memberships %}
+      <tr>
+        <td>{{ membership.user }}</td>
+        <td>{{ membership.get_role_display }}</td>
+        <td>
+          <form method="POST" action="{% url 'change-member-role' object.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ membership.user.id }}">
+            <select name="new_role">
+              <option value="basic_member" {% if membership.role == "basic_member" %}selected{% endif %}>Basic Member</option>
+              <option value="pro_member" {% if membership.role == "pro_member" %}selected{% endif %}>Pro Member</option>
+              <option value="moderator" {% if membership.role == "moderator" %}selected{% endif %}>Moderator</option>
+            </select>
+            <button type="submit">Change Role</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
