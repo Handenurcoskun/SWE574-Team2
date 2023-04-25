@@ -20,6 +20,6 @@ urlpatterns = [
     path('<int:pk>/update', SpaceUpdateView.as_view(), name='space-update'),
     path('<int:pk>/delete', SpaceDeleteView.as_view(), name='space-delete'),
     path('spaces/<int:pk>/members/', MembersListView.as_view(), name='members-list'),
-    path('spaces/<int:pk>/change_member_role/', ChangeMemberRoleView.as_view(), name='change-member-role'),
+    path('spaces/<int:membership_id>/change_member_role/', views.ChangeMemberRoleView.as_view(), name='change-member-role'),
     path('spaces/<int:post_id>/moderate_post/', ModeratePostView.as_view(), name='moderate-post'),
 ]
