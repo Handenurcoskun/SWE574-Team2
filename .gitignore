@@ -7,3 +7,7 @@ blog/migrations/__pycache__/*
 data/*
 .idea
 .env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
