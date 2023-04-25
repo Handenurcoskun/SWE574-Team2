@@ -24,7 +24,10 @@ class Post(models.Model):
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
     tags = TaggableManager(blank=True)
     image = models.ImageField(default='space_default.jpg', upload_to='space_pics', blank=True)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 70b3a8588332417ccb94c645bf560bcfa8182594
 
     def __str__(self):
         return self.title
