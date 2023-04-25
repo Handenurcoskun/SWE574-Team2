@@ -62,7 +62,10 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
+
     fields = ['title', 'content', 'link', 'tags', 'policy']
+
+
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -71,7 +74,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags']
+    fields = ['title', 'content', 'link', 'tags', 'image', 'policy']
 
     def get_space(self):
         space_id = self.kwargs.get('space_id')
@@ -81,12 +84,17 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     def dispatch(self, request, *args, **kwargs):
         space = self.get_space()
         user_membership = SpaceMembership.objects.filter(user=request.user, space=space).first()
+        user_existence = False
 
-        if not user_membership:
+        if SpaceMembership.objects.filter(user=request.user, space=space).exists() or request.user == space.owner:
+            user_existence = True
+
+        if not user_existence:
             raise PermissionDenied("You must be a member of this space to create a post.")
 
-        if space.policy == Space.PRIVATE and user_membership.role == SpaceMembership.BASIC_MEMBER:
-            raise PermissionDenied("You must be a Pro Member or Moderator in a private space to create a post.")
+        if request.user != space.owner:
+            if space.policy == Space.PRIVATE and user_membership.role == SpaceMembership.BASIC_MEMBER:
+                raise PermissionDenied("You must be a Pro Member or Moderator in a private space to create a post.")
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -98,7 +106,11 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
+
     fields = ['title', 'content', 'link', 'tags', 'policy']
+
+
+
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -192,7 +204,7 @@ def posts_of_following_profiles(request):
     paginate_by = 5
     qs = None
     for u in users:
-        p = Post.objects.filter(author=u, policy=Post.PUBLIC)
+        p = Post.objects.filter(author=u)
         posts.append(p)
     my_posts = Post.objects.filter(author=request.user)
     posts.append(my_posts)
