@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.views import View
+
 from users.models import Profile
 from spaces.models import Space, SpaceMembership
 import requests
@@ -253,3 +255,15 @@ def search_keyword(request):
         else:
             return render(request, 'blog/post_search.html',
                           {'keyword': keyword, 'count':count})
+
+# blog/views.py
+class ModeratePostsListView(LoginRequiredMixin, ListView):
+    ...
+    def get_queryset(self):
+        space = get_object_or_404(Space, id=self.kwargs['pk'])
+        return Post.objects.filter(space=space, status=Post.PENDING).order_by('-date_posted')
+
+class PostModerationActionView(LoginRequiredMixin, View):
+    ...
+    def post(self, request, *args, **kwargs):
+        pass
