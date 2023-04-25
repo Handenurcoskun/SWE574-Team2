@@ -32,16 +32,29 @@ class SpaceListView(ListView):
 
 class SpaceDetailView(LoginRequiredMixin, DetailView):
     model = Space
+
+    def get_filtered_posts(self):
+        viewed_space = get_object_or_404(Space, id=self.kwargs['pk'])
+
+        if self.request.user.is_authenticated:
+            return Post.objects.filter(space=viewed_space).filter(
+                Q(policy=Post.PUBLIC) | (Q(policy=Post.PRIVATE) & Q(author=self.request.user))
+            ).order_by('-date_posted')
+        return Post.objects.filter(space=viewed_space, policy=Post.PUBLIC).order_by('-date_posted')
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         viewed_space = get_object_or_404(Space, id=self.kwargs['pk'])
+
         if self.request.user in viewed_space.members.all():
             is_member = True
         else:
             is_member = False
+
         context["is_member"] = is_member
-        context['posts'] = Post.objects.filter(space=viewed_space).order_by('-date_posted')
+        context['posts'] = self.get_filtered_posts()
         return context
+
 
 class SpaceCreateView(LoginRequiredMixin, CreateView):
     model = Space
