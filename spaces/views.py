@@ -101,7 +101,7 @@ def JoinSpaceView(request, pk):
 # spaces/views.py
 class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = SpaceMembership
-    template_name = 'space/space_members.html'
+    template_name = 'spaces/space_members.html'
     context_object_name = 'memberships'
 
     def test_func(self):
