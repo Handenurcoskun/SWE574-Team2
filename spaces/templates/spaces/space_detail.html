@@ -4,11 +4,8 @@
     <img class="rounded-circle article-img" src="{{ object.image.url }}">
     <div class="media-body">
       <div class="article-metadata">
-        {% if is_member %}
-          <a class="mr-2" href="{% url 'user-posts' object.owner.username %}">{{ object.owner }}</a>
-        {% endif %}
+        <a class="mr-2" href="{% url 'user-posts' object.owner.username %}">{{ object.owner }}</a>
         <small class="text-muted">{{ object.date_created|date:"F d, Y" }}</small>
-        <a class="btn btn-info btn-sm mt-1 mb-1" href="{% url 'members-list' object.id %}">View Members</a>
         {% if object.owner == user %}
         <div>
           <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'space-update' object.id %}">Update the Space</a>
@@ -43,39 +40,37 @@
     <p class="article-content">{{ object.description }}</p>
   </article>
   <div class="container mt-4">
-  <h2>Recent Posts</h2>
-  {% for post in posts %}
-    <article class="media content-section">
-      <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
-      <div class="media-body">
-        <div class="article-metadata">
-          <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
-          <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+    <h2>Recent Posts</h2>
+    {% for post in posts %}
+        <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+        <div class="media-body">
+	        <div class="article-metadata">
+	          <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+	          <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+	        </div>
+	        <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+	        <p class="article-content">{{ post.content }}</p>
+	        <a class="article-link" href="{{ post.link }}" target="_blank">{{ post.link }}</a>
+	        <div>
+	          {% for tag in post.tags.all %}
+	            <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
+	          {% endfor %}
+	        </div>
         </div>
-        <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-        <p class="article-content">{{ post.content }}</p>
-        <a class="article-link" href="{{ post.link }}" target="_blank">{{ post.link }}</a>
         <div>
-          {% for tag in post.tags.all %}
-            <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div>
-        {% if is_member and membership.role == "moderator" %}
-          <form method="POST" action="{% url 'moderate-post' post.id %}">
-            {% csrf_token %}
-            <button type="submit" name="action" value="approve">Approve</button>
-            <button type="submit" name="action" value="reject">Reject</button>
-            <button type="submit" name="action" value="remove">Remove</button>
-          </form>
+	        {% if is_member and membership.role == "moderator" %}
+	          <form method="POST" action="{% url 'moderate-post' post.id %}">
+	            {% csrf_token %}
+	            <button type="submit" name="action" value="approve">Approve</button>
+	            <button type="submit" name="action" value="reject">Reject</button>
+	            <button type="submit" name="action" value="remove">Remove</button>
+	          </form>
         {% endif %}
-      </div>
-
-    </article>
-  {% empty %}
-    <p>No posts in this space yet.</p>
-  {% endfor %}
-</div>
+        </div>
+        </article>
+    {% empty %}
+        <p>No posts in this space yet.</p>
+    {% endfor %}
+  </div>
 {% endblock content %}
