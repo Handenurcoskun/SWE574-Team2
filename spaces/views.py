@@ -118,8 +118,11 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         space_id = self.kwargs.get('pk')
+        space = Space.objects.get(id=space_id)
         user_membership = SpaceMembership.objects.filter(space__id=space_id, user=self.request.user).first()
-        return user_membership is not None
+
+        # Allow access if the user is a member or the space is public
+        return user_membership is not None or space.policy == Space.PUBLIC
 
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
