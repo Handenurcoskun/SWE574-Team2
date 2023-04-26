@@ -140,14 +140,30 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
         membership_id = self.kwargs['membership_id']
         membership = get_object_or_404(SpaceMembership, id=membership_id)
         new_role = request.POST.get('new_role')
-        membership.role = new_role
-        membership.save()
+
+        if new_role == 'owner':
+            # Transfer ownership
+            space = membership.space
+            space.owner = membership.user
+            space.save()
+
+            # Change the old owner's role to a moderator
+            old_owner_membership = get_object_or_404(SpaceMembership, space=space, user=request.user)
+            old_owner_membership.role = 'moderator'
+            old_owner_membership.save()
+
+        else:
+            # Update the member's role
+            membership.role = new_role
+            membership.save()
+
         return redirect('members-list', membership.space.id)
 
     def test_func(self):
         membership_id = self.kwargs['membership_id']
         membership = get_object_or_404(SpaceMembership, id=membership_id)
         return self.request.user == membership.space.owner
+
 
 
 

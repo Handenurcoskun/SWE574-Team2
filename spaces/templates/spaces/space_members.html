@@ -16,20 +16,17 @@
             <td>{{ membership.user }}</td>
             <td>{{ membership.get_role_display }}</td>
             <td>
-              <form method="POST" action="{% url 'change-member-role' membership.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="user_id" value="{{ membership.user.id }}">
-                <select name="new_role">
-                  <option value="basic_member" {% if membership.role == "basic_member" %}selected{% endif %}>Basic Member</option>
-                  <option value="pro_member" {% if membership.role == "pro_member" %}selected{% endif %}>Pro Member</option>
-                  <option value="moderator" {% if membership.role == "moderator" %}selected{% endif %}>Moderator</option>
-                  <option value="owner" {% if membership.role == "owner" %}selected{% endif %}>Owner</option>
-                  {% if membership.role == 'transfer_owner' %}
-                  <option value="owner" selected>Transfer Ownership</option>
-                  {% endif %}
-                </select>
-                <button type="submit">Change Role</button>
-              </form>
+                <form method="POST" action="{% url 'change-member-role' membership.id %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="user_id" value="{{ membership.user.id }}">
+                  <select name="new_role">
+                    <option value="basic_member" {% if membership.role == "basic_member" %}selected{% endif %}>Basic Member</option>
+                    <option value="pro_member" {% if membership.role == "pro_member" %}selected{% endif %}>Pro Member</option>
+                    <option value="moderator" {% if membership.role == "moderator" %}selected{% endif %}>Moderator</option>
+                    <option value="owner" {% if membership.role == "owner" %}selected{% endif %}>Owner</option>
+                  </select>
+                  <button type="submit">Change Role</button>
+                </form>
             </td>
           </tr>
         {% endfor %}
