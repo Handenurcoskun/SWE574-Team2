@@ -16,18 +16,23 @@
             <td>{{ membership.user }}</td>
             <td>{{ membership.get_role_display }}</td>
             <td>
-              {% if membership.role != 'owner' %}
-                <form method="POST" action="{% url 'change-member-role' membership.id %}">
-                  {% csrf_token %}
-                  <input type="hidden" name="user_id" value="{{ membership.user.id }}">
-                  <select name="new_role">
-                    <option value="basic_member" {% if membership.role == "basic_member" %}selected{% endif %}>Basic Member</option>
-                    <option value="pro_member" {% if membership.role == "pro_member" %}selected{% endif %}>Pro Member</option>
-                    <option value="moderator" {% if membership.role == "moderator" %}selected{% endif %}>Moderator</option>
-                  </select>
-                  <button type="submit">Change Role</button>
-                </form>
-              {% endif %}
+	            <form method="POST" action="{% url 'change-member-role' object.id %}">
+				    {% csrf_token %}
+				    <input type="hidden" name="user_id" value="{{ membership.user.id }}">
+				    <select name="new_role">
+				      {% if request.user == space.owner %}
+				        <option value="owner" {% if membership.role == "owner" %}selected{% endif %}>Owner</option>
+				      {% endif %}
+				      {% if request.user == space.owner or membership.role == "moderator" %}
+				        <option value="moderator" {% if membership.role == "moderator" %}selected{% endif %}>Moderator</option>
+				      {% endif %}
+				      {% if request.user == space.owner or membership.role == "moderator" or membership.role == "pro_member" %}
+				        <option value="pro_member" {% if membership.role == "pro_member" %}selected{% endif %}>Pro Member</option>
+				      {% endif %}
+				      <option value="basic_member" {% if membership.role == "basic_member" %}selected{% endif %}>Basic Member</option>
+				    </select>
+				    <button type="submit">Change Role</button>
+                 </form>
             </td>
           </tr>
         {% endfor %}
