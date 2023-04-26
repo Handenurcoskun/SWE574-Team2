@@ -64,7 +64,12 @@ class SpaceCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # Create an owner_membership for the space owner
+        SpaceMembership.objects.create(user=self.request.user, space=self.object, role='owner')
+
+        return response
 
 class SpaceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Space
@@ -108,7 +113,13 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
         memberships = SpaceMembership.objects.filter(space=space).select_related('user')
-        return memberships
+
+        # Create an owner_membership for the owner and add it to the list of memberships
+        owner_membership, _ = SpaceMembership.objects.get_or_create(user=space.owner, space=space,
+                                                                    defaults={'role': 'owner'})
+        memberships_with_owner = [owner_membership] + list(memberships)
+
+        return memberships_with_owner
 
     def test_func(self):
         space = self.get_space()
