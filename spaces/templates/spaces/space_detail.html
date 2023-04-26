@@ -4,7 +4,9 @@
     <img class="rounded-circle article-img" src="{{ object.image.url }}">
     <div class="media-body">
       <div class="article-metadata">
-        <a class="mr-2" href="{% url 'user-posts' object.owner.username %}">{{ object.owner }}</a>
+        {% if is_member %}
+          <a class="mr-2" href="{% url 'user-posts' object.owner.username %}">{{ object.owner }}</a>
+        {% endif %}
         <small class="text-muted">{{ object.date_created|date:"F d, Y" }}</small>
         <a class="btn btn-info btn-sm mt-1 mb-1" href="{% url 'members-list' object.id %}">View Members</a>
         {% if object.owner == user %}
