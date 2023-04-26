@@ -107,7 +107,7 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = 'spaces/space_members.html'
 
     def get_queryset(self):
-        space = self.get_object()
+        space = get_object_or_404(Space, pk=self.kwargs['slug'])
         owner_membership = SpaceMembership.objects.filter(space=space, user=space.owner)
         memberships = SpaceMembership.objects.filter(space=space).exclude(user=space.owner)
         return owner_membership | memberships
