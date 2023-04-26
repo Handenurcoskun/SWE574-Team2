@@ -64,12 +64,7 @@ class SpaceCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
-        response = super().form_valid(form)
-
-        # Create an owner_membership for the space owner
-        SpaceMembership.objects.create(user=self.request.user, space=self.object, role='owner')
-
-        return response
+        return super().form_valid(form)
 
 class SpaceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Space
