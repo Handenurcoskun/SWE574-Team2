@@ -123,26 +123,23 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
-
-    def test_func(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return self.request.user == space.owner
-
     def post(self, request, *args, **kwargs):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        user_id = request.POST.get('user_id')
+        membership_id = self.kwargs['membership_id']
+        membership = get_object_or_404(SpaceMembership, id=membership_id)
         new_role = request.POST.get('new_role')
-
-        membership = get_object_or_404(SpaceMembership, space=space, user_id=user_id)
         membership.role = new_role
         membership.save()
+        return redirect('members-list', membership.space.id)
 
-        return HttpResponseRedirect(reverse('members-list', args=[str(space.pk)]))
+    def test_func(self):
+        membership_id = self.kwargs['membership_id']
+        membership = get_object_or_404(SpaceMembership, id=membership_id)
+        return self.request.user == membership.space.owner
 
 
 
 
-# spaces/views.py
+
 # spaces/views.py
 class ModeratePostView(LoginRequiredMixin, UserPassesTestMixin, View):
 
