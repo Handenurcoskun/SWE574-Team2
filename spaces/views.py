@@ -107,11 +107,10 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
-        memberships = SpaceMembership.objects.filter(space=space).exclude(user=space.owner)
+        memberships = SpaceMembership.objects.filter(space=space).select_related('user')
 
         # Include the owner as an 'owner' role membership
         owner_membership = SpaceMembership(user=space.owner, space=space, role='owner')
-        owner_membership.id = -1  # Assign a temporary ID for the owner's membership
         memberships_with_owner = [owner_membership] + list(memberships)
 
         return memberships_with_owner
