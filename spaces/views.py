@@ -116,8 +116,9 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return memberships
 
     def test_func(self):
-        space = self.get_object().space
+        space = get_object_or_404(Space, id=self.kwargs['pk'])
         return self.request.user == space.owner
+
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
