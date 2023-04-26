@@ -32,11 +32,13 @@ class Space(models.Model):
 
 
 class SpaceMembership(models.Model):
+    OWNER = 'owner'
     BASIC_MEMBER = 'basic_member'
     PRO_MEMBER = 'pro_member'
     MODERATOR = 'moderator'
 
     ROLE_CHOICES = [
+        (OWNER, 'Owner'),
         (BASIC_MEMBER, 'Basic Member'),
         (PRO_MEMBER, 'Pro Member'),
         (MODERATOR, 'Moderator'),

@@ -101,21 +101,23 @@ def JoinSpaceView(request, pk):
 # spaces/views.py
 class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = SpaceMembership
-    template_name = 'spaces/space_members.html'
     context_object_name = 'memberships'
-
-    def test_func(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return self.request.user == space.owner
-
-    def dispatch(self, request, *args, **kwargs):
-        if not self.test_func():
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
+    template_name = 'spaces/space_members.html'
 
     def get_queryset(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return SpaceMembership.objects.filter(space=space)
+        owner_membership = SpaceMembership(
+            user=space.owner,
+            space=space,
+            role='owner',
+        )
+        memberships = list(SpaceMembership.objects.filter(space=space))
+        memberships.insert(0, owner_membership)
+        return memberships
+
+    def test_func(self):
+        space = self.get_object().space
+        return self.request.user == space.owner
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
