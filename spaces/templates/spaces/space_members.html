@@ -16,7 +16,8 @@
             <td>{{ membership.user }}</td>
             <td>{{ membership.get_role_display }}</td>
             <td>
-	            <form method="POST" action="{% url 'change-member-role' object.id %}">
+	            <form method="POST" action="{% url 'change-member-role' membership.id %}">
+
 				    {% csrf_token %}
 				    <input type="hidden" name="user_id" value="{{ membership.user.id }}">
 				    <select name="new_role">
