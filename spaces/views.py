@@ -117,8 +117,8 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return memberships
 
     def test_func(self):
-        space = self.get_object()
-        user_membership = SpaceMembership.objects.filter(space=space, user=self.request.user).first()
+        space_id = self.kwargs.get('pk')
+        user_membership = SpaceMembership.objects.filter(space__id=space_id, user=self.request.user).first()
         return user_membership is not None
 
 
