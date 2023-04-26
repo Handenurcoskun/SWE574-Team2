@@ -108,12 +108,7 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_queryset(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
         memberships = SpaceMembership.objects.filter(space=space).select_related('user')
-
-        # Include the owner as an 'owner' role membership
-        owner_membership = SpaceMembership(user=space.owner, space=space, role='owner')
-        memberships_with_owner = [owner_membership] + list(memberships)
-
-        return memberships_with_owner
+        return memberships
 
     def test_func(self):
         space = self.get_space()
@@ -141,23 +136,16 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
         membership = get_object_or_404(SpaceMembership, id=membership_id)
         new_role = request.POST.get('new_role')
 
+        # Update owner if the new role is 'owner'
         if new_role == 'owner':
-            # Transfer ownership
             space = membership.space
             space.owner = membership.user
             space.save()
 
-            # Change the old owner's role to a moderator
-            old_owner_membership = get_object_or_404(SpaceMembership, space=space, user=request.user)
-            old_owner_membership.role = 'moderator'
-            old_owner_membership.save()
-
-        else:
-            # Update the member's role
-            membership.role = new_role
-            membership.save()
-
+        membership.role = new_role
+        membership.save()
         return redirect('members-list', membership.space.id)
+
 
     def test_func(self):
         membership_id = self.kwargs['membership_id']
