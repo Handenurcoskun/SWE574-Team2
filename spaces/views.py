@@ -101,35 +101,26 @@ def JoinSpaceView(request, pk):
     return HttpResponseRedirect(reverse('space-detail', args=[str(pk)]))
 
 # spaces/views.py
+from django.shortcuts import get_object_or_404
+
+
 class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = SpaceMembership
     context_object_name = 'memberships'
     template_name = 'spaces/space_members.html'
 
     def get_queryset(self):
-        space = get_object_or_404(Space, pk=self.kwargs['slug'])
+        space = get_object_or_404(Space, pk=self.kwargs['pk'])
         owner_membership = SpaceMembership.objects.filter(space=space, user=space.owner)
         memberships = SpaceMembership.objects.filter(space=space).exclude(user=space.owner)
         return owner_membership | memberships
 
     def test_func(self):
-        space = self.get_space()
-        if self.request.user == space.owner:
-            return True
+        def is_member(user, space):
+            return SpaceMembership.objects.filter(user=user, space=space).exists()
 
-        membership = SpaceMembership.objects.filter(user=self.request.user, space=space).first()
-        if membership:
-            return True
-
-        return False
-
-    def get_space(self):
-        return get_object_or_404(Space, id=self.kwargs['pk'])
-
-
-
-
-
+        space = get_object_or_404(Space, pk=self.kwargs['pk'])
+        return is_member(self.request.user, space)
 
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
