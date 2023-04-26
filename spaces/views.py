@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -111,8 +110,7 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         memberships = SpaceMembership.objects.filter(space=space).select_related('user')
 
         # Include the owner as an 'owner' role membership
-        owner_membership = SpaceMembership(user=space.owner, space=space,
-                                           role='owner' if space.owner != self.request.user else 'transfer_owner')
+        owner_membership = SpaceMembership(user=space.owner, space=space, role='owner')
         memberships_with_owner = [owner_membership] + list(memberships)
 
         return memberships_with_owner
@@ -139,23 +137,17 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        user_id = request.POST['user_id']
-        new_role = request.POST['new_role']
-
-        if new_role == 'owner':
-            space.owner = get_user_model().objects.get(pk=user_id)
-            space.save()
-        else:
-            membership = get_object_or_404(SpaceMembership, space=space, user_id=user_id)
-            membership.role = new_role
-            membership.save()
-
-        return redirect('members-list', pk=space.id)
+        membership_id = self.kwargs['membership_id']
+        membership = get_object_or_404(SpaceMembership, id=membership_id)
+        new_role = request.POST.get('new_role')
+        membership.role = new_role
+        membership.save()
+        return redirect('members-list', membership.space.id)
 
     def test_func(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return self.request.user == space.owner
+        membership_id = self.kwargs['membership_id']
+        membership = get_object_or_404(SpaceMembership, id=membership_id)
+        return self.request.user == membership.space.owner
 
 
 
