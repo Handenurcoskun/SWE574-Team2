@@ -100,24 +100,26 @@ def JoinSpaceView(request, pk):
     return HttpResponseRedirect(reverse('space-detail', args=[str(pk)]))
 
 # spaces/views.py
-# spaces/views.py
 class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = SpaceMembership
-    template_name = 'spaces/space_members.html'
     context_object_name = 'memberships'
+    template_name = 'spaces/space_members.html'
+
+    def get_queryset(self):
+        space = get_object_or_404(Space, id=self.kwargs['pk'])
+        owner_membership = SpaceMembership(
+            user=space.owner,
+            space=space,
+            role='owner',
+        )
+        memberships = list(SpaceMembership.objects.filter(space=space))
+        memberships.insert(0, owner_membership)
+        return memberships
 
     def test_func(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
         return self.request.user == space.owner
 
-    def dispatch(self, request, *args, **kwargs):
-        if not self.test_func():
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_queryset(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return SpaceMembership.objects.filter(space=space)
 
 
 
