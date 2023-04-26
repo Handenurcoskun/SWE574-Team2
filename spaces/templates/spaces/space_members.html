@@ -17,7 +17,7 @@
           <td>{{ membership.get_role_display }}</td>
           <td>
             {% if user_membership.role == "owner" or user_membership.role == "moderator" and membership.role != "owner" and membership.role != "moderator" or user_membership.role == "pro_member" and membership.role == "basic_member" %}
-              {% if not user_membership.role == membership.role %}
+              {% if not user_membership.role == membership.role or user_membership.role == "owner" %}
                 <form method="POST" action="{% url 'change-member-role' membership.id %}">
                   {% csrf_token %}
                   <input type="hidden" name="user_id" value="{{ membership.user.id }}">
@@ -39,4 +39,5 @@
     </tbody>
   </table>
 {% endblock content %}
+
 
