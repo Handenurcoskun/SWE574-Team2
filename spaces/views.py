@@ -118,15 +118,7 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def test_func(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
-        if self.request.user == space.owner:
-            return True
-
-        memberships = SpaceMembership.objects.filter(space=space, user=self.request.user)
-        if memberships.count() > 0:
-            membership = memberships.first()
-            if space.policy == Space.PUBLIC:
-                return True
-        return False
+        return self.request.user == space.owner
 
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
