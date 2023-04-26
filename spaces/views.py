@@ -107,18 +107,23 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
-        owner_membership = SpaceMembership(
-            user=space.owner,
-            space=space,
-            role='owner',
-        )
-        memberships = list(SpaceMembership.objects.filter(space=space))
-        memberships.insert(0, owner_membership)
+        memberships = SpaceMembership.objects.filter(space=space).select_related('user')
         return memberships
 
     def test_func(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return self.request.user == space.owner
+        space = self.get_space()
+        if self.request.user == space.owner:
+            return True
+
+        membership = SpaceMembership.objects.filter(user=self.request.user, space=space).first()
+        if membership:
+            return True
+
+        return False
+
+    def get_space(self):
+        return get_object_or_404(Space, id=self.kwargs['pk'])
+
 
 
 
