@@ -19,6 +19,7 @@ from .models import Space, SpaceMembership
 from blog.models import Post
 from django.views import View
 
+
 def home(request):
     context = {
         'spaces': Space.objects.all()
@@ -116,8 +117,9 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return memberships
 
     def test_func(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return self.request.user in space.members.all()
+        space = self.get_object()
+        user_membership = SpaceMembership.objects.filter(space=space, user=self.request.user).first()
+        return user_membership is not None
 
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
