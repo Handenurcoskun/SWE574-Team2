@@ -24,11 +24,11 @@ def home(request):
     context = {
         'spaces': Space.objects.all()
     }
-    return render(request, 'space/spaces.html', context)
+    return render(request, 'spaces/space_list.html', context)
 
 class SpaceListView(ListView):
     model = Space
-    template_name = 'space/spaces.html'
+    template_name = 'spaces/space_list.html'
     context_object_name = 'spaces'
     ordering = ['-date_created']
 
@@ -131,59 +131,59 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return get_object_or_404(Space, id=self.kwargs['pk'])
 
 
-
-
-
-
-
-
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
-        membership_id = self.kwargs['membership_id']
-        membership = get_object_or_404(SpaceMembership, id=membership_id)
+        membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
         new_role = request.POST.get('new_role')
 
-        # Update owner if the new role is 'owner'
-        if new_role == 'owner':
-            space = membership.space
-            space.owner = membership.user
-            space.save()
+        # Only allow the space owner and moderators to change member roles
+        if membership.space.owner != request.user and not membership.is_moderator():
+            return redirect('members-list', membership.space.id)
+
+        # Don't allow the space owner's role to be changed
+        if membership.role == 'owner' and new_role != 'owner':
+            return redirect('members-list', membership.space.id)
+
+        # Only allow moderators to change Basic Member and Pro Member roles
+        if new_role in ['pro_member', 'basic_member'] and not membership.is_moderator():
+            return redirect('members-list', membership.space.id)
 
         membership.role = new_role
         membership.save()
         return redirect('members-list', membership.space.id)
 
-
     def test_func(self):
-        membership_id = self.kwargs['membership_id']
-        membership = get_object_or_404(SpaceMembership, id=membership_id)
-        return self.request.user == membership.space.owner
+        membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
+        space = membership.space
 
+        # Only allow space owner and moderators to access this view
+        if (space.owner == self.request.user) or (membership.is_moderator()):
+            return True
 
-
+        return False
 
 
 
 # spaces/views.py
-class ModeratePostView(LoginRequiredMixin, UserPassesTestMixin, View):
-
-    def test_func(self):
-        post = get_object_or_404(Post, id=self.kwargs['post_id'])
-        space = post.space
-        membership = get_object_or_404(SpaceMembership, space=space, user=self.request.user)
-        return membership.is_moderator()
-
-    def post(self, request, *args, **kwargs):
-        action = request.POST.get('action')
-        post = get_object_or_404(Post, id=self.kwargs['post_id'])
-
-        if action == 'approve':
-            post.is_approved = True
-        elif action == 'reject':
-            post.is_approved = False
-        elif action == 'remove':
-            post.delete()
-            return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
-
-        post.save()
-        return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
+# class ModeratePostView(LoginRequiredMixin, UserPassesTestMixin, View):
+#
+#     def test_func(self):
+#         post = get_object_or_404(Post, id=self.kwargs['post_id'])
+#         space = post.space
+#         membership = get_object_or_404(SpaceMembership, space=space, user=self.request.user)
+#         return membership.is_moderator()
+#
+#     def post(self, request, *args, **kwargs):
+#         action = request.POST.get('action')
+#         post = get_object_or_404(Post, id=self.kwargs['post_id'])
+#
+#         if action == 'approve':
+#             post.is_approved = True
+#         elif action == 'reject':
+#             post.is_approved = False
+#         elif action == 'remove':
+#             post.delete()
+#             return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
+#
+#         post.save()
+#         return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
