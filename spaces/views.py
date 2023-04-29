@@ -162,6 +162,18 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         return False
 
+    def test_func(self):
+        membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
+        space = membership.space
+
+        # Only allow space owner and moderators to access this view
+        if (space.owner == self.request.user) or (membership.is_moderator()):
+            print("User is a moderator")
+            return True
+
+        print("User is not a moderator")
+        return False
+
 
 
 # spaces/views.py
