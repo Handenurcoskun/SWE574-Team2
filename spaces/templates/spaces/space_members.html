@@ -24,7 +24,7 @@
                 <form method="POST" action="{% url 'change-member-role' membership.id %}">
                   {% csrf_token %}
                   <select name="new_role" {% if membership.user == request.user or membership.space.owner != request.user %}disabled{% endif %} onchange="this.form.submit();">
-                    <option value="basic_member" {% if membership.role == 'member' %}selected{% endif %}>Basic Member</option>
+                    <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
                     <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>
                     <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
                   </select>
