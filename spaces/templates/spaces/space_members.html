@@ -49,9 +49,6 @@
 				            <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
 				        </select>
 				    </form>
-				{% else %}
-				    <span>{{ membership.get_role_display }}</span>
-
 
 				{% elif request.user and membership.role != 'pro_member' %}
 				  <form method="POST" action="{% url 'change-member-role' membership.id %}">
@@ -60,6 +57,9 @@
 				        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
 				    </select>
 				  </form>
+	            {% else %}
+				    <span>{{ membership.get_role_display }}</span>
+
                 {% endif %}
           </td>
         </tr>
