@@ -163,6 +163,7 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         return redirect('members-list', membership.space.id)
 
+
     def test_func(self):
         membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
         space = membership.space

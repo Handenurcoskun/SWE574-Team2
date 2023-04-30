@@ -18,33 +18,32 @@
           <td>{{ membership.get_role_display }}</td>
           <td>
             {% if membership.user == request.user %}
-              <span>{{ membership.get_role_display }}</span>
+                <span>{{ membership.get_role_display }}</span>
             {% elif request.user == membership.space.owner %}
-              <form method="POST" action="{% url 'change-member-role' membership.id %}">
-                {% csrf_token %}
-                <select name="new_role" onchange="this.form.submit();">
-                  <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
-                  <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
-                  <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>
-                </select>
-              </form>
-
+                <form method="POST" action="{% url 'change-member-role' membership.id %}">
+                    {% csrf_token %}
+                    <select name="new_role" onchange="this.form.submit();">
+                        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
+                        <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
+                        <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>
+                    </select>
+                </form>
             {% elif request.space.user == membership.space.is_moderator and membership.role != 'owner' and membership.role != 'moderator' %}
-              <form method="POST" action="{% url 'change-member-role' membership.id %}">
-                {% csrf_token %}
-                <select name="new_role" onchange="this.form.submit();">
-                  <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
-                  <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
-                </select>
-              </form>
-
-            {% elif request.user == membership.space.is_pro_member and membership.role != 'owner' and membership.space.role != 'moderator' and membership.space.role != 'pro_member' %}
-              <form method="POST" action="{% url 'change-member-role' membership.id %}">
-                {% csrf_token %}
-                <select name="new_role" onchange="this.form.submit();">
-                  <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
-                </select>
-              </form>
+                <form method="POST" action="{% url 'change-member-role' membership.id %}">
+                    {% csrf_token %}
+                    <select name="new_role" onchange="this.form.submit();">
+                        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
+                        <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
+                        <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>
+                    </select>
+                </form>
+            {% elif request.space.user == membership.space.is_pro_member and membership.role == 'basic_member' %}
+                <form method="POST" action="{% url 'change-member-role' membership.id %}">
+                    {% csrf_token %}
+                    <select name="new_role" onchange="this.form.submit();">
+                        <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
+                    </select>
+                </form>
             {% else %}
                 <span>{{ membership.get_role_display }}</span>
             {% endif %}
@@ -54,5 +53,6 @@
     </tbody>
   </table>
 {% endblock content %}
+
 
 
