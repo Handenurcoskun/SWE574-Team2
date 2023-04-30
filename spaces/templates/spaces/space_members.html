@@ -20,7 +20,8 @@
             {% if membership.role == 'owner' and membership.user == request.user %}
                 <span>{{ membership.get_role_display }}</span>
             {% else %}
-				{% if membership.role != 'moderator' or request.user == membership.space.owner or membership.user == request.user  %}
+{#              {% if membership.is_moderator and membership.user == request.user or membership.role == 'basic_member' or membership.role == 'pro_member' and request.user in membership.space.moderators.all %}#}
+				{% if membership.is_moderator and membership.user == request.user %}
 				  <form method="POST" action="{% url 'change-member-role' membership.id %}">
 				    {% csrf_token %}
 				    <select name="new_role" onchange="this.form.submit();">
@@ -29,17 +30,14 @@
 				      <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
 				    </select>
 				  </form>
-
-				{% elif membership.role == 'basic_member' or membership.role == 'pro_member' and membership.user == request.user %}
+				{% elif membership.role == 'basic_member' or membership.role == 'pro_member' %}
 				  <form method="POST" action="{% url 'change-member-role' membership.id %}">
 				    {% csrf_token %}
 				    <select name="new_role" onchange="this.form.submit();">
-				        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
-				        <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
-{#				        <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>#}
+				      <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
+				      <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
 				    </select>
 				  </form>
-
 				{% else %}
 				  <span>{{ membership.get_role_display }}</span>
 				{% endif %}
@@ -50,6 +48,5 @@
     </tbody>
   </table>
 {% endblock content %}
-
 
 
