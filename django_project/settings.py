@@ -80,17 +80,17 @@ WSGI_APPLICATION = 'django_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASE_URL = os.getenv('DATABASE_URL')
-# url = urlparse(DATABASE_URL)
+DATABASE_URL = os.getenv('DATABASE_URL')
+url = urlparse(DATABASE_URL)
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'swe574',
-        'USER': 'hakan',
-        'PASSWORD': 'root',
-        'HOST': 'db',
-        'PORT': '3306'
+        'NAME': url.path[1:],
+        'USER': url.username,
+        'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port,
     }
 }
 
