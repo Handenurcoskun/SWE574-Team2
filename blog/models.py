@@ -14,6 +14,16 @@ class Post(models.Model):
         (PRIVATE, 'Private'),
     ]
 
+    APPROVED = 'approved'
+    REJECTED = 'rejected'
+    PENDING = 'pending'
+
+    STATUS_CHOICES = [
+        (APPROVED, 'Approved'),
+        (REJECTED, 'Rejected'),
+        (PENDING, 'Pending'),
+    ]
+
     policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
     title = models.CharField(max_length = 100)
     content = models.TextField(max_length = 500)
@@ -24,7 +34,8 @@ class Post(models.Model):
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
     tags = TaggableManager(blank=True)
     image = models.ImageField(default='space_default.jpg', upload_to='space_pics', blank=True)
-
+    is_approved = models.BooleanField(default=False)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
 
 
 

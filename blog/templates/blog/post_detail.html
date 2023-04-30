@@ -28,7 +28,7 @@
       </div>
 	    {% if object.policy == 'public' %}
 	        <span class="badge bg-info">{{ object.policy }}</span>
-	    {% else %}
+	    {% elif object.policy == 'private' %}
 		    <span class="badge bg-warning">{{ object.policy }}</span>
 	    {% endif %}
 		  

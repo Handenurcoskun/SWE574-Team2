@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.views import View
+
 from users.models import Profile
 from spaces.models import Space, SpaceMembership
 import requests
@@ -253,3 +255,37 @@ def search_keyword(request):
         else:
             return render(request, 'blog/post_search.html',
                           {'keyword': keyword, 'count':count})
+
+# blog/views.py
+class ModeratePostsListView(LoginRequiredMixin, ListView):
+    ...
+    def get_queryset(self):
+        space = get_object_or_404(Space, id=self.kwargs['pk'])
+        return Post.objects.filter(space=space, status=Post.PENDING).order_by('-date_posted')
+
+class PostModerationActionView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        post_id = self.kwargs['pk']
+        action = request.POST.get('action')
+
+        post = get_object_or_404(Post, id=post_id)
+        space_membership = SpaceMembership.objects.filter(space=post.space, user=request.user).first()
+
+        # Check if the user is the space owner or has the 'moderator' role
+        if not (request.user == post.space.owner or (space_membership and space_membership.role == SpaceMembership.MODERATOR)):
+            # Redirect the user to an error page or show a message indicating insufficient permissions
+            # Replace 'error-page' with the appropriate URL
+            return HttpResponseRedirect(reverse('error-page'))
+
+        if action == "approve":
+            post.status = Post.APPROVED
+        elif action == "reject":
+            post.status = Post.REJECTED
+        elif action == "remove":
+            post.status = Post.REMOVED
+
+        post.save()
+
+        # Redirect the user back to the list of posts pending moderation
+        # Replace 'moderate-posts-list' with the URL of the ModeratePostsListView
+        return HttpResponseRedirect(reverse('moderate-posts-list', args=[post.space.id]))
