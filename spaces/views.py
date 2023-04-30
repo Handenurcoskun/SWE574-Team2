@@ -153,7 +153,7 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
         space = membership.space
 
         # Only allow space owner and moderators to access this view
-        if (space.owner == self.request.user) or (membership.is_moderator()):
+        if (space.owner == self.request.user) or (membership.is_moderator() and self.request.user != membership.user):
             return True
 
         return False
