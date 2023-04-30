@@ -51,34 +51,16 @@
 				    </form>
 				{% else %}
 				    <span>{{ membership.get_role_display }}</span>
-				{% endif %}
 
 
-
-
-
-
-
-
-{#				{% elif membership.is_moderator  %}#}
-{#				  <form method="POST" action="{% url 'change-member-role' membership.id %}">#}
-{#				    {% csrf_token %}#}
-{#				    <select name="new_role" onchange="this.form.submit();">#}
-{#				        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>#}
-{#				        <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>#}
-{#				        <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>#}
-{#				    </select>#}
-{#				  </form>#}
-
-{#				{% elif membership.role == 'pro_member' %}#}
-{#				  <form method="POST" action="{% url 'change-member-role' membership.id %}">#}
-{#				    {% csrf_token %}#}
-{#				    <select name="new_role" onchange="this.form.submit();">#}
-{#				        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>#}
-{#				        <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>#}
-{#				        <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>#}
-{#				    </select>#}
-{#				  </form>#}
+				{% elif request.user and membership.role != 'pro_member' %}
+				  <form method="POST" action="{% url 'change-member-role' membership.id %}">
+				    {% csrf_token %}
+				    <select name="new_role" onchange="this.form.submit();">
+				        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
+				    </select>
+				  </form>
+                {% endif %}
           </td>
         </tr>
       {% endfor %}

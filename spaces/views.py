@@ -135,51 +135,29 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
         membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
         new_role = request.POST.get('new_role')
-
-        # Only allow the space owner and moderators to change member roles
-        if not (membership.space.owner == request.user or membership.is_moderator()):
-            return redirect('members-list', membership.space.id)
+        user_membership = get_object_or_404(SpaceMembership, space=membership.space, user=self.request.user)
 
         # Don't allow the space owner's role to be changed
         if membership.role == 'owner' and new_role != 'owner':
             return redirect('members-list', membership.space.id)
 
-        membership.role = new_role
-        membership.save()
+        # Only allow the space owner and moderators to change member roles
+        if membership.space.owner == request.user or (
+                user_membership.is_moderator() and membership.role != 'moderator'):
+            membership.role = new_role
+            membership.save()
+
         return redirect('members-list', membership.space.id)
 
     def test_func(self):
         membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
         space = membership.space
+        user_membership = get_object_or_404(SpaceMembership, space=space, user=self.request.user)
 
         # Only allow space owner and moderators to access this view
-        if (space.owner == self.request.user) or (membership.is_moderator() and self.request.user != membership.user):
+        if (space.owner == self.request.user) or (user_membership.is_moderator() and membership.role != 'moderator'):
             return True
 
         return False
 
 
-
-# spaces/views.py
-# class ModeratePostView(LoginRequiredMixin, UserPassesTestMixin, View):
-#
-#     def test_func(self):
-#         post = get_object_or_404(Post, id=self.kwargs['post_id'])
-#         space = post.space
-#         membership = get_object_or_404(SpaceMembership, space=space, user=self.request.user)
-#         return membership.is_moderator()
-#
-#     def post(self, request, *args, **kwargs):
-#         action = request.POST.get('action')
-#         post = get_object_or_404(Post, id=self.kwargs['post_id'])
-#
-#         if action == 'approve':
-#             post.is_approved = True
-#         elif action == 'reject':
-#             post.is_approved = False
-#         elif action == 'remove':
-#             post.delete()
-#             return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
-#
-#         post.save()
-#         return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
