@@ -54,6 +54,9 @@ class SpaceMembership(models.Model):
     def is_pro_member(self):
         return self.role == SpaceMembership.PRO_MEMBER
 
+    def is_basic_member(self):
+        return self.role == SpaceMembership.BASIC_MEMBER
+
 
     class Meta:
         unique_together = ('user', 'space')
