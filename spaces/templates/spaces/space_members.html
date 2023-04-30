@@ -17,50 +17,37 @@
           <td>{{ membership.user }}</td>
           <td>{{ membership.get_role_display }}</td>
           <td>
-{#            {% if membership.role == 'owner' and membership.user == request.user %}#}
-{#                <span>{{ membership.get_role_display }}</span>#}
-{#            {% else %}#}
-{#              {% if membership.is_moderator and membership.user == request.user or membership.role == 'basic_member' or membership.role == 'pro_member' and request.user in membership.space.moderators.all %}#}
-{#				{% if membership.is_moderator and membership.user == request.user %}#}
-{#				  <form method="POST" action="{% url 'change-member-role' membership.id %}">#}
-{#				    {% csrf_token %}#}
-{#				    <select name="new_role" onchange="this.form.submit();">#}
-{#				      <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>#}
-{#				      <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>#}
-{#				      <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>#}
-{#				    </select>#}
-{#				  </form>#}
-	            {% if membership.user == request.user %}
-				    <span>{{ membership.get_role_display }}</span>
-				{% elif request.user == membership.space.owner %}
-				    <form method="POST" action="{% url 'change-member-role' membership.id %}">
-				        {% csrf_token %}
-				        <select name="new_role" onchange="this.form.submit();">
-				            <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
-				            <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
-				            <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>
-				        </select>
-				    </form>
-				{% elif request.user  and membership.role != 'owner' and membership.role != 'moderator' %}
-				    <form method="POST" action="{% url 'change-member-role' membership.id %}">
-				        {% csrf_token %}
-				        <select name="new_role" onchange="this.form.submit();">
-				            <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
-				            <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
-				        </select>
-				    </form>
+            {% if membership.user == request.user %}
+              <span>{{ membership.get_role_display }}</span>
+            {% elif request.user == membership.space.owner %}
+              <form method="POST" action="{% url 'change-member-role' membership.id %}">
+                {% csrf_token %}
+                <select name="new_role" onchange="this.form.submit();">
+                  <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
+                  <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
+                  <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>
+                </select>
+              </form>
 
-				{% elif request.user and membership.role != 'pro_member' %}
-				  <form method="POST" action="{% url 'change-member-role' membership.id %}">
-				    {% csrf_token %}
-				    <select name="new_role" onchange="this.form.submit();">
-				        <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
-				    </select>
-				  </form>
-	            {% else %}
-				    <span>{{ membership.get_role_display }}</span>
+            {% elif request.space.user == membership.space.is_moderator and membership.role != 'owner' and membership.role != 'moderator' %}
+              <form method="POST" action="{% url 'change-member-role' membership.id %}">
+                {% csrf_token %}
+                <select name="new_role" onchange="this.form.submit();">
+                  <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
+                  <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
+                </select>
+              </form>
 
-                {% endif %}
+            {% elif request.user == membership.space.is_pro_member and membership.role != 'owner' and membership.space.role != 'moderator' and membership.space.role != 'pro_member' %}
+              <form method="POST" action="{% url 'change-member-role' membership.id %}">
+                {% csrf_token %}
+                <select name="new_role" onchange="this.form.submit();">
+                  <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
+                </select>
+              </form>
+            {% else %}
+                <span>{{ membership.get_role_display }}</span>
+            {% endif %}
           </td>
         </tr>
       {% endfor %}

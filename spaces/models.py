@@ -51,8 +51,9 @@ class SpaceMembership(models.Model):
     def is_moderator(self):
         return self.role == SpaceMembership.MODERATOR
 
-    def is_user_moderator_of_space(self, user):
-        return user.space_memberships.filter(role='moderator', space=self.space).exists()
+    def is_pro_member(self):
+        return self.role == SpaceMembership.PRO_MEMBER
+
 
     class Meta:
         unique_together = ('user', 'space')
