@@ -19,6 +19,12 @@ from .models import Space, SpaceMembership
 from blog.models import Post
 from django.views import View
 
+from django.shortcuts import get_object_or_404, redirect
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from .models import SpaceMembership
+
+
 
 def home(request):
     context = {
@@ -130,11 +136,6 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     def get_space(self):
         return get_object_or_404(Space, id=self.kwargs['pk'])
 
-
-from django.shortcuts import get_object_or_404, redirect
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import SpaceMembership
 
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
