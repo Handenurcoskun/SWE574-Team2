@@ -175,6 +175,10 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
                 (user_membership.is_pro_member() and membership.role == 'basic_member'):
             return True
 
+        # Explicitly prevent basic members from accessing this view
+        if user_membership.is_basic_member():
+            return False
+
         return False
 
 
