@@ -17,7 +17,7 @@
           <td>{{ membership.user }}</td>
           <td>{{ membership.get_role_display }}</td>
           <td>
-            {% if membership.user == request.user or request.space.user_membership.role == 'basic_member'%}
+            {% if membership.user == request.user or request.user == membership.space.is_basic_member %}
                 <span>{{ membership.get_role_display }}</span>
             {% elif request.user == membership.space.owner %}
                 <form method="POST" action="{% url 'change-member-role' membership.id %}">
@@ -42,7 +42,6 @@
                     {% csrf_token %}
                     <select name="new_role" onchange="this.form.submit();">
                         <option value="basic_member" {% if membership.role == 'basic_member' %}selected{% endif %}>Basic Member</option>
-                        <option value="pro_member" {% if membership.role == 'pro_member' %}selected{% endif %}>Pro Member</option>
                     </select>
                 </form>
             {% else %}
