@@ -17,6 +17,8 @@ from django.views.generic import (
 )
 from .models import Space, SpaceMembership, PrivateSpaceRequest
 from blog.models import Post
+from django.views import View
+
 
 def home(request):
     context = {
@@ -32,23 +34,27 @@ class SpaceListView(ListView):
 
 class SpaceDetailView(LoginRequiredMixin, DetailView):
     model = Space
+
+    def get_filtered_posts(self):
+        viewed_space = get_object_or_404(Space, id=self.kwargs['pk'])
+
+        if self.request.user.is_authenticated:
+            return Post.objects.filter(space=viewed_space).filter(
+                Q(policy=Post.PUBLIC) | (Q(policy=Post.PRIVATE) & Q(author=self.request.user))
+            ).order_by('-date_posted')
+        return Post.objects.filter(space=viewed_space, policy=Post.PUBLIC).order_by('-date_posted')
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         viewed_space = get_object_or_404(Space, id=self.kwargs['pk'])
-        results = PrivateSpaceRequest.objects.filter(space=viewed_space.id).all()
         if self.request.user in viewed_space.members.all():
             is_member = True
         else:
             is_member = False
-        is_pending = False
-        for result in results:
-            if result.user == self.request.user:
-                is_pending = True
         context["is_member"] = is_member
-        context['posts'] = Post.objects.filter(space=viewed_space).order_by('-date_posted')
-        context['private_space_requests'] = PrivateSpaceRequest.objects.filter(space=viewed_space.id)
-        context["is_pending"] = is_pending
+        context['posts'] = self.get_filtered_posts()
         return context
+
 
 class SpaceCreateView(LoginRequiredMixin, CreateView):
     model = Space
@@ -104,3 +110,64 @@ def JoinSpaceView(request, pk):
             elif request.POST.get("declined"):
                 PrivateSpaceRequest.objects.get(user_id=request.POST.get("declined")).delete()
     return HttpResponseRedirect(reverse('space-detail', args=[str(pk)]))
+
+# spaces/views.py
+class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = SpaceMembership
+    context_object_name = 'memberships'
+    template_name = 'spaces/space_members.html'
+
+    def get_queryset(self):
+        space = get_object_or_404(Space, id=self.kwargs['pk'])
+        owner_membership = SpaceMembership(
+            user=space.owner,
+            space=space,
+            role='owner',
+        )
+        memberships = list(SpaceMembership.objects.filter(space=space))
+        memberships.insert(0, owner_membership)
+        return memberships
+
+    def test_func(self):
+        space = get_object_or_404(Space, id=self.kwargs['pk'])
+        return self.request.user == space.owner
+
+
+class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def post(self, request, *args, **kwargs):
+        membership_id = self.kwargs['membership_id']
+        membership = get_object_or_404(SpaceMembership, id=membership_id)
+        new_role = request.POST.get('new_role')
+        membership.role = new_role
+        membership.save()
+        return redirect('members-list', membership.space.id)
+
+    def test_func(self):
+        space = get_object_or_404(Space, id=self.kwargs['pk'])
+        return self.request.user in space.members.all()
+
+
+
+# spaces/views.py
+class ModeratePostView(LoginRequiredMixin, UserPassesTestMixin, View):
+
+    def test_func(self):
+        post = get_object_or_404(Post, id=self.kwargs['post_id'])
+        space = post.space
+        membership = get_object_or_404(SpaceMembership, space=space, user=self.request.user)
+        return membership.is_moderator()
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+        post = get_object_or_404(Post, id=self.kwargs['post_id'])
+
+        if action == 'approve':
+            post.is_approved = True
+        elif action == 'reject':
+            post.is_approved = False
+        elif action == 'remove':
+            post.delete()
+            return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
+
+        post.save()
+        return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))

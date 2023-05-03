@@ -32,11 +32,13 @@ class Space(models.Model):
 
 
 class SpaceMembership(models.Model):
+    OWNER = 'owner'
     BASIC_MEMBER = 'basic_member'
     PRO_MEMBER = 'pro_member'
     MODERATOR = 'moderator'
 
     ROLE_CHOICES = [
+        (OWNER, 'Owner'),
         (BASIC_MEMBER, 'Basic Member'),
         (PRO_MEMBER, 'Pro Member'),
         (MODERATOR, 'Moderator'),
@@ -45,6 +47,9 @@ class SpaceMembership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=BASIC_MEMBER)
+
+    def is_moderator(self):
+        return self.role == self.MODERATOR
 
     class Meta:
         unique_together = ('user', 'space')

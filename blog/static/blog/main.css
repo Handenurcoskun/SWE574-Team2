@@ -45,6 +45,10 @@ a.article-title:hover {
   text-decoration: none;
 }
 
+.article-policy{
+    margin-right: 5px;
+}
+
 .article-content {
   white-space: pre-line;
 }
