@@ -122,6 +122,12 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         return memberships_with_owner
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        space = self.get_space()
+        context['user_membership'] = get_object_or_404(SpaceMembership, user=self.request.user, space=space)
+        return context
+
     def test_func(self):
         space = self.get_space()
         if self.request.user == space.owner:
@@ -135,6 +141,7 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_space(self):
         return get_object_or_404(Space, id=self.kwargs['pk'])
+
 
 
 
