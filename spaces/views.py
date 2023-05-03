@@ -150,7 +150,7 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         # Only allow the space owner and moderators to change member roles
         if membership.space.owner == request.user or (
-                user_membership.is_moderator() and membership.role != 'moderator'):
+                user_membership.is_moderator() and membership.role not in ['owner', 'moderator']):
             membership.role = new_role
             membership.save()
 
@@ -164,7 +164,6 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         return redirect('members-list', membership.space.id)
 
-
     def test_func(self):
         membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
         space = membership.space
@@ -172,11 +171,12 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         # Only allow space owner, moderators and pro members to access this view
         if (space.owner == self.request.user) or \
-                (user_membership.is_moderator() and membership.role != 'moderator') or \
+                (user_membership.is_moderator() and membership.role not in ['owner', 'moderator']) or \
                 (user_membership.is_pro_member() and membership.role == 'basic_member'):
             return True
 
         return False
+
 
 
 

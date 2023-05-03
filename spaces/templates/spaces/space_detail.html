@@ -27,15 +27,15 @@
          </form>
        {% endif %}
        {% if user != object.owner %}
-         <form class="" action = "{% url 'join-space' object.pk %}" method="POST">
+         <form method="POST" action="{% url 'join-space' space.pk %}">
            {% csrf_token %}
            {% if is_member %}
                <button type="submit", onclick="return confirm('Are you sure to leave?')" name="space_id" , value ="{{ object.id }}" , class="btn btn-secondary">Leave</button>
            {% else %}
                <button type="submit",  name="space_id" , value ="{{ object.id }}" , class="btn btn-primary">Join</button>
            {% endif %}
-        </form>
-      {% endif %}
+         </form>
+       {% endif %}
       </div>
     </div>
 	<h2 class="article-title">{{ object.name }}</h2>
