@@ -155,7 +155,7 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
             membership.save()
 
         # Allow pro members to change only basic member roles
-        elif user_membership.is_pro_member() and membership.role == 'basic_member':
+        if user_membership.is_pro_member() and membership.role == 'basic_member':
             if new_role == 'pro_member':
                 membership.role = new_role
                 membership.save()
