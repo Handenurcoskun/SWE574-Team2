@@ -84,13 +84,13 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 url = urlparse(DATABASE_URL)
 
 DATABASES = {
-    'default': {
+       'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': url.path[1:],
-        'USER': url.username,
-        'PASSWORD': url.password,
-        'HOST': url.hostname,
-        'PORT': url.port,
+        'NAME': 'swe574',
+        'USER': 'hakan',
+        'PASSWORD': 'root',
+        'HOST': 'db',
+        'PORT': '3306'
     }
 }
 

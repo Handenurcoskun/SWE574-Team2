@@ -19,16 +19,22 @@ from .models import Space, SpaceMembership
 from blog.models import Post
 from django.views import View
 
+from django.shortcuts import get_object_or_404, redirect
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from .models import SpaceMembership
+
+
 
 def home(request):
     context = {
         'spaces': Space.objects.all()
     }
-    return render(request, 'space/spaces.html', context)
+    return render(request, 'spaces/space_list.html', context)
 
 class SpaceListView(ListView):
     model = Space
-    template_name = 'space/spaces.html'
+    template_name = 'spaces/space_list.html'
     context_object_name = 'spaces'
     ordering = ['-date_created']
 
@@ -107,55 +113,86 @@ class MembersListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
     def get_queryset(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
-        owner_membership = SpaceMembership(
-            user=space.owner,
-            space=space,
-            role='owner',
-        )
-        memberships = list(SpaceMembership.objects.filter(space=space))
-        memberships.insert(0, owner_membership)
-        return memberships
+        memberships = SpaceMembership.objects.filter(space=space).exclude(user=space.owner).select_related('user')
+
+        # Get or create an owner_membership for the owner and add it to the list of memberships
+        owner_membership, _ = SpaceMembership.objects.get_or_create(user=space.owner, space=space,
+                                                                    defaults={'role': 'owner'})
+        memberships_with_owner = [owner_membership] + list(memberships)
+
+        return memberships_with_owner
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        space = self.get_space()
+        context['user_membership'] = get_object_or_404(SpaceMembership, user=self.request.user, space=space)
+        return context
 
     def test_func(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return self.request.user == space.owner
+        space = self.get_space()
+        if self.request.user == space.owner:
+            return True
+
+        membership = SpaceMembership.objects.filter(user=self.request.user, space=space).first()
+        if membership:
+            return True
+
+        return False
+
+    def get_space(self):
+        return get_object_or_404(Space, id=self.kwargs['pk'])
+
+
 
 
 class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request, *args, **kwargs):
-        membership_id = self.kwargs['membership_id']
-        membership = get_object_or_404(SpaceMembership, id=membership_id)
+        membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
         new_role = request.POST.get('new_role')
-        membership.role = new_role
-        membership.save()
+        user_membership = get_object_or_404(SpaceMembership, space=membership.space, user=self.request.user)
+
+        # Don't allow the space owner's role to be changed
+        if membership.role == 'owner' and new_role != 'owner':
+            return redirect('members-list', membership.space.id)
+
+        # Only allow the space owner and moderators to change member roles
+        if membership.space.owner == request.user or (
+                user_membership.is_moderator() and membership.role not in ['owner', 'moderator']):
+            membership.role = new_role
+            membership.save()
+
+        # Allow pro members to change only basic member roles
+        if user_membership.is_pro_member() and membership.role == 'basic_member':
+            if new_role == 'pro_member':
+                membership.role = new_role
+                membership.save()
+            else:
+                return redirect('members-list', membership.space.id)
+
         return redirect('members-list', membership.space.id)
 
     def test_func(self):
-        space = get_object_or_404(Space, id=self.kwargs['pk'])
-        return self.request.user in space.members.all()
+        membership = get_object_or_404(SpaceMembership, id=self.kwargs['membership_id'])
+        space = membership.space
+        user_membership = get_object_or_404(SpaceMembership, space=space, user=self.request.user)
+
+        # Only allow space owner, moderators and pro members to access this view
+        if (space.owner == self.request.user) or \
+                (user_membership.is_moderator() and membership.role not in ['owner', 'moderator']) or \
+                (user_membership.is_pro_member() and membership.role == 'basic_member'):
+            return True
+
+        # Explicitly prevent basic members from accessing this view
+        if user_membership.is_basic_member():
+            return False
+
+        return False
 
 
 
-# spaces/views.py
-class ModeratePostView(LoginRequiredMixin, UserPassesTestMixin, View):
 
-    def test_func(self):
-        post = get_object_or_404(Post, id=self.kwargs['post_id'])
-        space = post.space
-        membership = get_object_or_404(SpaceMembership, space=space, user=self.request.user)
-        return membership.is_moderator()
 
-    def post(self, request, *args, **kwargs):
-        action = request.POST.get('action')
-        post = get_object_or_404(Post, id=self.kwargs['post_id'])
 
-        if action == 'approve':
-            post.is_approved = True
-        elif action == 'reject':
-            post.is_approved = False
-        elif action == 'remove':
-            post.delete()
-            return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
 
-        post.save()
-        return HttpResponseRedirect(reverse('space-detail', args=[str(post.space.pk)]))
+
+
