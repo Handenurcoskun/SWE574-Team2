@@ -189,7 +189,27 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
         return False
 
 
+def search(request):
+    query = request.GET.get('q')
+    if query:
+        spaces = Space.objects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        ).distinct()
 
+        # Filter out private posts
+        posts = Post.objects.filter(
+            Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query),
+            policy='public'  # assuming 'public' represents a public post
+        ).distinct()
+    else:
+        spaces = Post.objects.none()
+        posts = Post.objects.none()
+
+    context = {
+        'spaces': spaces,
+        'posts': posts,
+    }
+    return render(request, 'spaces/search.html', context)
 
 
 
