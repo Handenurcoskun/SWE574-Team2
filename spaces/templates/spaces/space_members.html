@@ -28,7 +28,7 @@
                         <option value="moderator" {% if membership.role == 'moderator' %}selected{% endif %}>Moderator</option>
                     </select>
                 </form>
-            {% elif request.space.user == membership.space.is_pro_member and membership.role != 'owner' and membership.role != 'moderator' %}
+            {% elif request.user == membership.space.is_pro_member and membership.role != 'owner' and membership.role != 'moderator' %}
                 <form method="POST" action="{% url 'change-member-role' membership.id %}">
                     {% csrf_token %}
                     <select name="new_role" onchange="this.form.submit();">
