@@ -8,7 +8,8 @@ from .views import (
     JoinSpaceView,
     MembersListView,
     ChangeMemberRoleView,
-    search
+    search,
+    user_posts,
 )
 
 urlpatterns = [
@@ -21,4 +22,5 @@ urlpatterns = [
     path('spaces/<int:pk>/members/', MembersListView.as_view(), name='members-list'),
     path('spaces/memberships/<int:membership_id>/change_member_role/', ChangeMemberRoleView.as_view(), name='change-member-role'),
     path('search/', search, name='search'),
+    path('user/<str:username>/', user_posts, name='user_posts'),
 ]

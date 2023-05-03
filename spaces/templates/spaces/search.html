@@ -13,7 +13,8 @@
         {% for space in spaces %}
             <tr>
                 <td><a href="{% url 'space-detail' space.id %}">{{ space.name }}</a></td>
-                <td>{{ space.owner.username }}</td>
+		        <td><a href="{% url 'user_posts' space.owner.username %}">{{ space.owner.username }}</a></td>
+		    </tr>
             </tr>
         {% endfor %}
         </table>
@@ -31,7 +32,7 @@
         {% for post in posts %}
             <tr>
                 <td><a href="{% url 'post-detail' post.id %}">{{ post.title }}</a></td>
-                <td>{{ post.author.username }}</td>
+                <td><a href="{% url 'user_posts' post.author.username %}">{{ post.author.username }}</a></td>
             </tr>
         {% endfor %}
         </table>

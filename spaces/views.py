@@ -189,17 +189,20 @@ class ChangeMemberRoleView(LoginRequiredMixin, UserPassesTestMixin, View):
         return False
 
 
+from django.db.models import Q
+
 def search(request):
     query = request.GET.get('q')
+    user = request.user
     if query:
         spaces = Space.objects.filter(
             Q(name__icontains=query) | Q(description__icontains=query)
         ).distinct()
 
-        # Filter out private posts
+        # Filter out private posts for everyone except the author
         posts = Post.objects.filter(
             Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query),
-            policy='public'  # assuming 'public' represents a public post
+            Q(policy='public') | (Q(policy='private') & Q(author=user))
         ).distinct()
     else:
         spaces = Post.objects.none()
@@ -211,7 +214,15 @@ def search(request):
     }
     return render(request, 'spaces/search.html', context)
 
+def user_posts(request, username):
+    user = get_object_or_404(User, username=username)
+    posts = Post.objects.filter(author=user)
 
+    context = {
+        'user': user,
+        'posts': posts,
+    }
+    return render(request, 'spaces/user_posts.html', context)
 
 
 

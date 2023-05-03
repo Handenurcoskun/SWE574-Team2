@@ -1,0 +1,28 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+
+    <h2>{{ user.username }}'s Posts</h2>
+    {% if posts %}
+        <table>
+            <tr>
+                <th>Post</th>
+                <th>Space</th>
+            </tr>
+        {% for post in posts %}
+            <tr>
+                <td>
+                    <!-- Add a link to the post detail view -->
+                    <a href="{% url 'post-detail' post.id %}">{{ post.title }}</a>
+                </td>
+                <td>
+                    <!-- Add a link to the space detail view -->
+                    <a href="{% url 'space-detail' post.space.id %}">{{ post.space.name }}</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>No posts found.</p>
+    {% endif %}
+{% endblock %}
