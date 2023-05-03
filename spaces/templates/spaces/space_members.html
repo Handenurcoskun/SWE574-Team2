@@ -17,7 +17,7 @@
           <td>{{ membership.user }}</td>
           <td>{{ membership.get_role_display }}</td>
           <td>
-            {% if membership.user == request.user %}
+            {% if membership.user == request.user or user_membership.is_basic_member %}
                 <span>{{ membership.get_role_display }}</span>
             {% elif request.user == membership.space.owner %}
                 <form method="POST" action="{% url 'change-member-role' membership.id %}">
@@ -54,6 +54,5 @@
     </tbody>
   </table>
 {% endblock content %}
-
 
 
