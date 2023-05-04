@@ -12,10 +12,18 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from itertools import chain
 from django.db.models import Q
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import (
+    View,
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView
+)
 
 from . import models
 from .models import Post
+from .forms import CommentForm
 
 def home(request):
     context = {
@@ -60,7 +68,17 @@ class PostDetailView(LoginRequiredMixin, DetailView):
         else:
             save = False
         context["save"] = save
+        context['comment_form'] = CommentForm()
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = self.get_object()
+            comment.user = request.user
+            comment.save()
+            return redirect('post-detail', pk=self.get_object().pk)
 
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -80,11 +98,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     model = Post
-
     fields = ['title', 'content', 'link', 'tags', 'image', 'policy']
-
-
-
 
     def get_space(self):
         space_id = self.kwargs.get('space_id')
@@ -116,11 +130,7 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
-
-
     fields = ['title', 'content', 'link', 'tags', 'policy']
-
-
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -278,3 +288,24 @@ class PostModerationActionView(LoginRequiredMixin, View):
         # Redirect the user back to the list of posts pending moderation
         # Replace 'moderate-posts-list' with the URL of the ModeratePostsListView
         return HttpResponseRedirect(reverse('moderate-posts-list', args=[post.space.id]))
+
+
+class LikePostView(LoginRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        post_id = request.POST.get('post_id')
+        post = get_object_or_404(Post, id=post_id)
+
+        if request.user in post.likes.all():
+            post.likes.remove(request.user)
+            liked = False
+        else:
+            post.likes.add(request.user)
+            liked = True
+
+        response_data = {
+            'post_id': post_id,
+            'likes_count': post.likes.count(),
+            'liked': liked,
+        }
+        return JsonResponse(response_data)
