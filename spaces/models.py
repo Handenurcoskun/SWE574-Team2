@@ -21,6 +21,7 @@ class Space(models.Model):
     members = models.ManyToManyField(User, through='SpaceMembership', related_name='spaces', blank=True)
     image = models.ImageField(default='space_default.jpg', upload_to='space_pics')
 
+
     def __str__(self):
         return self.name
 
@@ -48,8 +49,18 @@ class SpaceMembership(models.Model):
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=BASIC_MEMBER)
 
+    def is_owner(self):
+        return self.role == SpaceMembership.OWNER
+
     def is_moderator(self):
-        return self.role == self.MODERATOR
+        return self.role == SpaceMembership.MODERATOR
+
+    def is_pro_member(self):
+        return self.role == SpaceMembership.PRO_MEMBER
+
+    def is_basic_member(self):
+        return self.role == SpaceMembership.BASIC_MEMBER
+
 
     class Meta:
         unique_together = ('user', 'space')
