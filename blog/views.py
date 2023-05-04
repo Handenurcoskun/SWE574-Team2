@@ -244,17 +244,6 @@ def filter_tags(request,pk):
        }
     return render(request, 'blog/filtertags.html', context)
 
-def search_keyword(request):
-    if request.method == "POST":
-        keyword = request.POST['keyword']
-        posts = Post.objects.filter(Q(title__icontains=keyword) | Q(content__icontains=keyword))
-        count = posts.count()
-        if count > 0:
-            return render(request, 'blog/post_search.html',
-                      {'keyword':keyword, 'posts':posts, 'count':count})
-        else:
-            return render(request, 'blog/post_search.html',
-                          {'keyword': keyword, 'count':count})
 
 # blog/views.py
 class ModeratePostsListView(LoginRequiredMixin, ListView):

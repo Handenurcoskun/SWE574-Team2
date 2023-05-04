@@ -31,7 +31,7 @@
 	    {% elif object.policy == 'private' %}
 		    <span class="badge bg-warning">{{ object.policy }}</span>
 	    {% endif %}
-		  
+
 		<h2 class="article-title">{{ object.title }}</h2>
 		<p class="article-content">{{ object.content }}</p>
 		<a class="article-link" href="{{ object.link }}" target="_blank" name="link" id="preview_link{{ object.id }}" onmouseover="loadPreview('{{ object.id }}', '{{ object.link }}')">{{ object.link }}</a>

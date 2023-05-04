@@ -8,15 +8,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" type = "text/css" href="{% static 'blog/main.css' %}"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/5v5zS4pJocDzODDp5pBs8e7Kw5qo1m7kmSV4/"
+        crossorigin="anonymous">
 
-    <link rel="stylesheet" type = "text/css" href="{% static 'blog/main.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Your App Name{% endblock %}</title>
+    <style>
+        table {
+            border-collapse: separate;
+            border-spacing: 25px; /* Adjust this value to increase or decrease the spacing between columns */
+        }
 
-    {% if title %}
-      <title>SWE753 - {{ title }}</title>
-    {% else %}
-      <title>SWE753</title>
-    {% endif %}
+        table {
+            border-collapse: separate;
+            border-spacing: 20px; /* Adjust this value to increase or decrease the spacing between columns */
+        }
+    </style>
   </head>
   <body>
     <header class="site-header">
@@ -34,12 +45,17 @@
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
               {% if user.is_authenticated %}
-              <form class="form-inline my-2 my-lg-0" method = POST action="{% url 'search-keyword' %}">
-                {% csrf_token %}
-                <input class="form-control mr-sm-2" type="search" placeholder="Enter a keyword" aria-label="Search" name="keyword">
-                <button class="btn btn-outline-dark mr-sm-4" type="submit">Filter</button>
-              </form>
-              <a class="nav-item nav-link" href="{% url 'following-posts' %}">Following Feed</a>
+	               <form method="get" action="{% url 'search' %}" onsubmit="return checkForm(this);">
+					    <div class="input-group">
+					        <div class="form-inline">
+					            <input type="text" id="form1" class="form-control" name="q" placeholder="Search" aria-label="Search" />
+					        </div>
+					        <button type="submit" class="btn btn-primary">
+					            <i class="fas fa-search"></i>
+					        </button>
+					    </div>
+					</form>
+                <a class="nav-item nav-link" href="{% url 'following-posts' %}">MySpace</a>
                 <a class="nav-item nav-link" href="{% url 'space-create' %}">Create a Space</a>
                 <a class="nav-item nav-link" href="{% url 'profile' %}">Profile</a>
                 <a class="nav-item nav-link" href="{% url 'profiles:profile-list' %}">Users</a>
