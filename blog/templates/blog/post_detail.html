@@ -40,6 +40,13 @@
 		  <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
 		{% endfor %}
 		</div>
+        <form class="like-form">
+          {% csrf_token %}
+          <input type="hidden" name="post_id" value="{{ post.id }}">
+          <button type="submit" class="btn btn-link {% if user in post.likes.all %}text-primary{% endif %}">
+            <i class="fas fa-heart {% if post.likes.count == 0 %}text-muted{% endif %}"></i> <span class="like-count">{{ post.likes.count }}</span>
+          </button>
+        </form>							  
     </div>
     <div class="spinner-border text-success not-visible" id="preview_loader{{ object.id }}" role="status">
           <span class="sr-only">Loading...</span>
@@ -53,6 +60,27 @@
         </div>
     </div>
   </article>
+  {% for comment in post.comments.all %}
+      <div class="card mt-3">
+          <div class="card-body">
+              <h6 class="card-title">{{ comment.user.username }}</h6>
+              <small class="text-muted">{{ comment.date_posted|date:"F d, Y" }}</small>
+              <p class="card-text">{{ comment.content }}</p>
+          </div>
+      </div>
+  {% endfor %}
+  {% if user.is_authenticated %}
+      <div class="card mt-3">
+          <div class="card-body">
+              <h6 class="card-title">Add Comment</h6>
+              <form method="post">
+                  {% csrf_token %}
+                  {{ comment_form.as_p }}
+                  <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+          </div>
+      </div>
+  {% endif %}										
   <script>
     function loadPreview(id, link) {
         console.log(id, link);
@@ -89,5 +117,46 @@
             },
         });
     };
+    document.addEventListener('DOMContentLoaded', () => {
+      const likeForms = document.querySelectorAll('.like-form');
+      likeForms.forEach(form => {
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+
+          const post_id = form.querySelector('input[name="post_id"]').value;
+          const csrf_token = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+          const likeCountElement = form.querySelector('.like-count');
+          const likeButton = form.querySelector('button');
+          const heartIcon = form.querySelector('.fas.fa-heart');
+
+          fetch('/like_post/', {
+            method: 'POST',
+            body: new URLSearchParams({
+              'post_id': post_id,
+              'csrfmiddlewaretoken': csrf_token
+            }),
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            likeCountElement.textContent = data.likes_count;
+            if (data.liked) {
+              heartIcon.classList.add('text-primary');
+              heartIcon.classList.remove('text-muted');
+            } else {
+              heartIcon.classList.remove('text-primary');
+              if (data.likes_count === 0) {
+                heartIcon.classList.add('text-muted');
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        });
+      });
+    });														 
   </script>
 {% endblock content %}

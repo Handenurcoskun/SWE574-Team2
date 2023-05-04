@@ -32,6 +32,7 @@ class Post(models.Model):
     link = models.URLField(default='')
     space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='posts', blank=True, null=True)
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)                                                                            
     tags = TaggableManager(blank=True)
     image = models.ImageField(default='space_default.jpg', upload_to='space_pics', blank=True)
     is_approved = models.BooleanField(default=False)
@@ -48,3 +49,13 @@ class Post(models.Model):
 
     class Meta:
         ordering = ('-date_posted',)
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField(max_length = 200)
+    date_posted = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.content[:20]}'

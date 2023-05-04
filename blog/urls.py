@@ -8,6 +8,7 @@ from .views import (
     PostDeleteView,
     UserPostListView,
     FavouritesView,
+    LikePostView,             
     generate_preview,
     posts_of_following_profiles
 )
@@ -20,7 +21,9 @@ urlpatterns = [
     path('post/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
     path('post/<int:pk>', FavouritesView, name='post-favourites'),
     path('favouriteposts', views.favourite_posts, name='favourite-posts'),
+    path('like_post/', LikePostView.as_view(), name='like_post'),                                                             
     path('filtertags/<int:pk>', views.filter_tags, name='filter-tags'),
+    path('searchkeyword/', views.search_keyword, name='search-keyword'),                                                                    
     path('post/new/', PostCreateView.as_view(), name='post-create'),
     path('post/<int:space_id>/new/', PostCreateUnderSpaceView.as_view(), name='post-create-under-space'),
     path('post/<int:pk>/update', PostUpdateView.as_view(), name='post-update'),
