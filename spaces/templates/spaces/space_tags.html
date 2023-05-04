@@ -1,0 +1,13 @@
+from django import template
+
+register = template.Library()
+
+@register.simple_tag
+def can_change_role(request_user, membership):
+    if request_user == membership.space.owner:
+        return True
+    if membership.user == request_user:
+        return True
+    if membership.role in ['basic_member', 'pro_member'] and request_user in membership.space.moderators.all():
+        return True
+    return False
