@@ -22,7 +22,7 @@ from django.views import View
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import SpaceMembership
+from .models import SpaceMembership, PrivateSpaceRequest
 
 
 
@@ -53,14 +53,26 @@ class SpaceDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         viewed_space = get_object_or_404(Space, id=self.kwargs['pk'])
-
+        results = PrivateSpaceRequest.objects.filter(space=viewed_space.id).all()
         if self.request.user in viewed_space.members.all():
             is_member = True
         else:
             is_member = False
-
+        is_pending = False
+        for result in results:
+            if result.user == self.request.user:
+                is_pending = True
+        is_writer = False
+        xd = "not_a_member"
+        if SpaceMembership.objects.filter(user=self.request.user):
+            xd = SpaceMembership.objects.filter(user=self.request.user).get().role
+        if xd not in ["basic_member", "not_a_member"]:
+            is_writer = True
         context["is_member"] = is_member
+        context["is_writer"] = is_writer
         context['posts'] = self.get_filtered_posts()
+        context['private_space_requests'] = PrivateSpaceRequest.objects.filter(space=viewed_space.id)
+        context["is_pending"] = is_pending
         return context
 
 
@@ -98,11 +110,25 @@ class SpaceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 def JoinSpaceView(request, pk):
     if request.method == 'POST':
-        space = get_object_or_404(Space, id=request.POST.get('space_id'))
-        if space.members.filter(id=request.user.id).exists():
-            space.members.remove(request.user.id)
+        if request.POST.get('space_id'):
+            space = get_object_or_404(Space, id=request.POST.get('space_id'))
+            if space.members.filter(id=request.user.id).exists():
+                space.members.remove(request.user.id)
+            else:
+                if space.policy == 'public':
+                    space.members.add(request.user.id)
+                else:
+                    psr = PrivateSpaceRequest()
+                    psr.user = request.user
+                    psr.space = space
+                    psr.save()
         else:
-            space.members.add(request.user.id)
+            space = get_object_or_404(Space, id=pk)
+            if request.POST.get("approved"):
+                space.members.add(request.POST.get("approved"))
+                PrivateSpaceRequest.objects.get(user_id=request.POST.get("approved")).delete()
+            elif request.POST.get("declined"):
+                PrivateSpaceRequest.objects.get(user_id=request.POST.get("declined")).delete()
     return HttpResponseRedirect(reverse('space-detail', args=[str(pk)]))
 
 # spaces/views.py
