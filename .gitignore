@@ -11,3 +11,9 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+venv
+.DS_Store
+.vscode
+docker-compose.yml
+Dockerfile
+requirements.txt
