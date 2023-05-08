@@ -15,4 +15,4 @@ class CommentForm(forms.ModelForm):
 class PostCreateUnderSpaceForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'link', 'tags']
+        fields = ['title', 'content', 'link', 'tags', 'policy', 'image']
