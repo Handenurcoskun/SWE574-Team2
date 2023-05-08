@@ -110,7 +110,7 @@
   <h2 class="article-title">{{ object.name }}</h2>
   <p class="article-content">{{ object.description }}</p>
 </article>
-{% if object.owner == user or is_member %}
+{% if object.owner == user or is_member or is_public_space %}
 <div class="container mt-4">
   <h2>Recent Posts</h2>
   {% for post in posts %}

@@ -54,26 +54,49 @@ class SpaceDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Variable showing if the user has authority to approve private space join requests
         approve_join = False
+        # Variable showing if the user is member of the space
+        is_member = False
+        # Variable showing if the user is waiting to be approved to the private space
+        is_pending = False
+        # Variable showing is the user has authotiy to create a post under space
+        is_writer = False
+
+        # If the user is in the current spaces member list, then it is already a member
         viewed_space = get_object_or_404(Space, id=self.kwargs['pk'])
-        results = PrivateSpaceRequest.objects.filter(
-            space=viewed_space.id).all()
         if self.request.user in viewed_space.members.all():
             is_member = True
-        else:
-            is_member = False
-        is_pending = False
+        # Variable showing if the viewed space is a public space
+        is_public_space = False
+        if viewed_space.policy == 'public':
+            is_public_space = True
+
+        # If any of the pending requests for the current space belong to the user, then it is waiting for approval
+        results = PrivateSpaceRequest.objects.filter(
+            space=viewed_space.id).all()
         for result in results:
             if result.user == self.request.user:
                 is_pending = True
-        is_writer = False
+
+        # Initially, set user role to "not a member"
         xd = "not_a_member"
+        # If the user is member of the viewed space, assign its role to the xd variable
         if SpaceMembership.objects.filter(space=viewed_space, user=self.request.user):
             xd = SpaceMembership.objects.filter(space=viewed_space,
                                                 user=self.request.user).get().role
-        if xd not in ["basic_member", "not_a_member"]:
-            is_writer = True
 
+        # If the viewed space is a public space, then any member has write (creating post) authority
+        if viewed_space.policy == 'public':
+            if xd != 'not_a_member':
+                is_writer = True
+        # If the viewed space is private, then pro member and higher ranks have write authority
+        else:
+            if xd not in ["basic_member", "not_a_member"]:
+                is_writer = True
+
+        # If the role is owner or moderator, then the user has authority to approve join requests for provate spaces
         if xd in ["owner", "moderator"]:
             approve_join = True
 
@@ -84,6 +107,7 @@ class SpaceDetailView(LoginRequiredMixin, DetailView):
             space=viewed_space.id)
         context["is_pending"] = is_pending
         context["approve_join"] = approve_join
+        context["is_public_space"] = is_public_space
 
         print(context)
         return context
