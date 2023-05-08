@@ -11,7 +11,7 @@ from .views import (
     search,
     user_posts,
 )
-
+# below are paths
 urlpatterns = [
     path('', SpaceListView.as_view(), name='spaces-home'),
     path('<int:pk>/', SpaceDetailView.as_view(), name='space-detail'),
