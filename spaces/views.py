@@ -38,6 +38,16 @@ class SpaceListView(ListView):
     context_object_name = 'spaces'
     ordering = ['-date_created']
 
+# class MySpacesListView(ListView):
+#     model = Space
+#     template_name = 'space/spaces.html'
+#     context_object_name = 'spaces'
+#     ordering = ['-date_created']
+
+#     def get_queryset(self):
+#         user = get_object_or_404(User, username=self.kwargs.get('username'))
+#         # user_membership = SpaceMembership.objects.filter(user=request.user, space=space).first()
+#         return Space.objects.filter(author=user, ).order_by('-date_created')
 
 class SpaceDetailView(LoginRequiredMixin, DetailView):
     model = Space
