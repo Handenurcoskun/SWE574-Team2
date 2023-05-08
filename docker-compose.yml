@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   web:
@@ -28,7 +28,7 @@ services:
     volumes:
       - ./data/mysql/db:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
     networks:
