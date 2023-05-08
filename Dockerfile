@@ -7,13 +7,13 @@ FROM python:3.8
 ENV PYTHONUNBUFFERED 1
 
 # create root directory for our project in the container
-RUN mkdir /SWE573_Project
+RUN mkdir /SWE574_Team2_Project
 
-# Set the working directory to /SWE573_Project
-WORKDIR /SWE573_Project
+# Set the working directory to /SWE574_Team2_Project
+WORKDIR /SWE574_Team2_Project
 
-# Copy the current directory contents into the container at /SWE573_Project
-ADD . /SWE573_Project/
+# Copy the current directory contents into the container at /SWE574_Team2_Project
+ADD . /SWE574_Team2_Project/
 
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt

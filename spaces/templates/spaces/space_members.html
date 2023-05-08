@@ -9,6 +9,9 @@
         <th scope="col">Username</th>
         <th scope="col">Role</th>
         <th scope="col">Change Role</th>
+        {% if user_membership.is_owner or user_membership.is_moderator%}
+        <th scope="col">Remove</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -16,6 +19,7 @@
         <tr>
           <td>{{ membership.user }}</td>
           <td>{{ membership.get_role_display }}</td>
+
           <td>
             {% if user_membership.is_owner %}
               {% if membership.role != 'owner' %}
@@ -28,6 +32,7 @@
                   </select>
                 </form>
               {% endif %}
+
             {% elif user_membership.is_moderator %}
               {% if membership.role == 'basic_member' or membership.role == 'pro_member' %}
                 <form method="POST" action="{% url 'change-member-role' membership.id %}">
@@ -41,6 +46,7 @@
               {% else %}
                 <span>{{ membership.get_role_display }}</span>
               {% endif %}
+
             {% elif user_membership.is_pro_member %}
               {% if membership.role == 'basic_member' %}
                 <form method="POST" action="{% url 'change-member-role' membership.id %}">
@@ -53,9 +59,11 @@
               {% else %}
                 <span>{{ membership.get_role_display }}</span>
               {% endif %}
+
             {% else %}
               <span>{{ membership.get_role_display }}</span>
             {% endif %}
+            
           </td>
         </tr>
       {% endfor %}
