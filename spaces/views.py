@@ -54,6 +54,7 @@ class SpaceDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
+        approve_join = False
         viewed_space = get_object_or_404(Space, id=self.kwargs['pk'])
         results = PrivateSpaceRequest.objects.filter(
             space=viewed_space.id).all()
@@ -84,7 +85,7 @@ class SpaceDetailView(LoginRequiredMixin, DetailView):
         context["is_pending"] = is_pending
         context["approve_join"] = approve_join
 
-        # print(context)
+        print(context)
         return context
 
 
@@ -127,7 +128,20 @@ def JoinSpaceView(request, pk):
     if request.method == 'POST':
         if request.POST.get('space_id'):
             space = get_object_or_404(Space, id=request.POST.get('space_id'))
+            # If the user is already a member of the space, remove user from the space (leave request)
             if space.members.filter(id=request.user.id).exists():
+                # If the space is private, delete user's posts from the space when leaving
+                if space.policy == 'private':
+                    # Get all the posts of the user in the current space
+                    user_posts = Post.objects.filter(
+                        space=space, author=request.user)
+                    # Delete each post of the user
+                    for each_post in user_posts:
+                        each_post.delete()
+
+                # If the space is public, keep the posts (do nothing)
+
+                # Remove the user from space's member list
                 space.members.remove(request.user.id)
             else:
                 if space.policy == 'public':
