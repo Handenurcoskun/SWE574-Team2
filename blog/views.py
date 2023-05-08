@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -18,18 +20,20 @@ from django.views.generic import (
     DetailView,
     CreateView,
     UpdateView,
-    DeleteView
+    DeleteView,
 )
 
 from . import models
 from .models import Post
-from .forms import CommentForm
+from .forms import CommentForm, PostCreateUnderSpaceForm
+
 
 def home(request):
     context = {
         'posts': Post.objects.all()
     }
     return render(request, 'blog/home.html', context)
+
 
 class PostListView(ListView):
     model = Post
@@ -60,6 +64,7 @@ class UserPostListView(ListView):
 
 class PostDetailView(LoginRequiredMixin, DetailView):
     model = Post
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         viewed_post = get_object_or_404(Post, id=self.kwargs['pk'])
@@ -80,16 +85,11 @@ class PostDetailView(LoginRequiredMixin, DetailView):
             comment.save()
             return redirect('post-detail', pk=self.get_object().pk)
 
+
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
 
-
     fields = ['title', 'content', 'link', 'tags', 'policy']
-
-
-
-
-
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -98,7 +98,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     model = Post
-    fields = ['title', 'content', 'link', 'tags', 'image', 'policy']
+    form_class = PostCreateUnderSpaceForm
 
     def get_space(self):
         space_id = self.kwargs.get('space_id')
@@ -122,11 +122,29 @@ class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def check_duplicate_link(self, form):
+        link = form.cleaned_data.get('link')
+        space = self.get_space()
+
+        duplicate_post = Post.objects.filter(space=space, link=link).first()
+        if duplicate_post:
+            context = self.get_context_data()
+            context['duplicate_post'] = duplicate_post
+            context['form'] = form
+            return self.render_to_response(context)
+        return None
+
     def form_valid(self, form):
+        if 'deny' in self.request.POST:
+            return HttpResponseRedirect(reverse('blog-home'))
+        if 'confirm' not in self.request.POST:
+            duplicate_response = self.check_duplicate_link(form)
+            if duplicate_response:
+                return duplicate_response
+
         form.instance.author = self.request.user
         form.instance.space = self.get_space()
         return super().form_valid(form)
-
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Post
@@ -142,6 +160,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return True
         return False
 
+
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     success_url = '/'
@@ -152,8 +171,10 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return True
         return False
 
+
 def about(request):
     return render(request, 'blog/about.html', {'title': 'About'})
+
 
 def get_title(html):
     """Scrape page title."""
@@ -168,6 +189,7 @@ def get_title(html):
         title = html.find("h1").string
     return title
 
+
 def get_description(html):
     """Scrape page description."""
     description = None
@@ -181,6 +203,7 @@ def get_description(html):
         description = html.find("p").contents
     return description
 
+
 def get_image(html):
     """Scrape share image."""
     image = None
@@ -193,6 +216,7 @@ def get_image(html):
     elif html.find("img", src=True):
         image = html.find_all("img").get('src')
     return image
+
 
 def generate_preview(request):
     headers = {
@@ -217,6 +241,7 @@ def generate_preview(request):
 
     return JsonResponse(meta_data)
 
+
 def posts_of_following_profiles(request):
     profile = Profile.objects.get(user=request.user)
     users = [user for user in profile.following.all()]
@@ -232,6 +257,7 @@ def posts_of_following_profiles(request):
         qs = sorted(chain(*posts), reverse=True, key=lambda obj: obj.date_posted)
     return render(request, 'blog/myspace.html', {'posts': qs})
 
+
 def FavouritesView(request, pk):
     if request.method == 'POST':
         post = get_object_or_404(Post, id=request.POST.get('post_id'))
@@ -241,26 +267,30 @@ def FavouritesView(request, pk):
             post.favourites.add(request.user.id)
     return HttpResponseRedirect(reverse('post-detail', args=[str(pk)]))
 
+
 def favourite_posts(request):
-    context =  {
+    context = {
         'favourites': Post.objects.filter(favourites=request.user)
-       }
+    }
     print(context)
     return render(request, 'blog/favourites.html', context)
 
-def filter_tags(request,pk):
-    context =  {
+
+def filter_tags(request, pk):
+    context = {
         'taggedposts': Post.objects.filter(tags=pk)
-       }
+    }
     return render(request, 'blog/filtertags.html', context)
 
 
 # blog/views.py
 class ModeratePostsListView(LoginRequiredMixin, ListView):
     ...
+
     def get_queryset(self):
         space = get_object_or_404(Space, id=self.kwargs['pk'])
         return Post.objects.filter(space=space, status=Post.PENDING).order_by('-date_posted')
+
 
 class PostModerationActionView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
@@ -271,7 +301,8 @@ class PostModerationActionView(LoginRequiredMixin, View):
         space_membership = SpaceMembership.objects.filter(space=post.space, user=request.user).first()
 
         # Check if the user is the space owner or has the 'moderator' role
-        if not (request.user == post.space.owner or (space_membership and space_membership.role == SpaceMembership.MODERATOR)):
+        if not (request.user == post.space.owner or (
+                space_membership and space_membership.role == SpaceMembership.MODERATOR)):
             # Redirect the user to an error page or show a message indicating insufficient permissions
             # Replace 'error-page' with the appropriate URL
             return HttpResponseRedirect(reverse('error-page'))
