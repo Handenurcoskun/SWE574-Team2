@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from users.models import Profile
+from users.models import Profile, Category
 import requests
 from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponseRedirect
@@ -37,6 +37,12 @@ class SpaceListView(ListView):
     template_name = 'spaces/space_list.html'
     context_object_name = 'spaces'
     ordering = ['-date_created']
+
+    def get_queryset(self):
+        user = self.request.user
+        user_categories = user.profile.categories.all()
+        return Space.objects.filter(category__in=user_categories).order_by('-date_created')
+
 
 # class MySpacesListView(ListView):
 #     model = Space
@@ -125,16 +131,29 @@ class SpaceDetailView(LoginRequiredMixin, DetailView):
 
 class SpaceCreateView(LoginRequiredMixin, CreateView):
     model = Space
-    fields = ['name', 'description', 'policy', 'image']
+    fields = ['name', 'description', 'policy', 'image', 'category']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
+
+        # Create a new category if the new_category field is not empty
+        new_category = self.request.POST.get('new_category', '').strip()
+        if new_category:
+            category, _ = Category.objects.get_or_create(name=new_category)
+            form.instance.category = category
+            self.request.user.profile.categories.add(category)  # Add the new category to the user's profile categories
+
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class SpaceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Space
-    fields = ['name', 'description', 'policy', 'image']
+    fields = ['name', 'description', 'policy', 'image', 'category']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -145,6 +164,11 @@ class SpaceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if self.request.user == space.owner:
             return True
         return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class SpaceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -293,13 +317,12 @@ def search(request):
     user = request.user
     if query:
         spaces = Space.objects.filter(
-            Q(name__icontains=query) | Q(description__icontains=query)
+            Q(name__icontains=query) | Q(description__icontains=query) | Q(category__name__icontains=query),
         ).distinct()
 
         # Filter out private posts for everyone except the author
         posts = Post.objects.filter(
-            Q(title__icontains=query) | Q(content__icontains=query) | Q(
-                tags__name__icontains=query),
+            Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query),
             Q(policy='public') | (Q(policy='private') & Q(author=user))
         ).distinct()
     else:

@@ -106,9 +106,20 @@
       </form>
       {% endif %}
     </div>
+    <div style="display: flex; flex-direction: column;">
+        <div class="content-section">
+	        <h2 class="article-title">{{ object.name }}</h2>
+        </div>
+        <div class="content-section">
+	        <p class="article-content">{{ object.description }}</p>
+        </div>
+        <div class="content-section">
+		   {% if object.category %}
+			   <p><strong>Category:</strong> {{ object.category.name }}</p>
+		   {% endif %}
+	    </div>
+    </div>
   </div>
-  <h2 class="article-title">{{ object.name }}</h2>
-  <p class="article-content">{{ object.description }}</p>
 </article>
 {% if object.owner == user or is_member or is_public_space %}
 <div class="container mt-4">
