@@ -18,11 +18,16 @@ from django.views.generic import (
 from .models import Space, SpaceMembership
 from blog.models import Post
 from django.views import View
+from django.db.models import Q
 
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import SpaceMembership, PrivateSpaceRequest
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
 
 
 def home(request):
