@@ -2,6 +2,14 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from PIL import Image
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -9,6 +17,7 @@ class Profile(models.Model):
     following = models.ManyToManyField(User, related_name='following', blank=True)
     updated = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
+    categories = models.ManyToManyField(Category, related_name='categories', blank=True)
 
 
     def __str__(self):
@@ -29,3 +38,9 @@ class Profile(models.Model):
 
     class Meta:
         ordering = ('-created',)
+
+# @receiver(post_save, sender=User)
+# def create_profile(sender, instance, created, **kwargs):
+#     if created:
+#         Profile.objects.create(user=instance)
+#         instance.profile.save()
