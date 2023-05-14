@@ -89,7 +89,7 @@ class PostDetailView(LoginRequiredMixin, DetailView):
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
 
-    fields = ['title', 'content', 'link', 'tags', 'policy']
+    fields = ['title', 'content', 'link', 'tags', 'policy', 'image']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
