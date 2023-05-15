@@ -1,8 +1,10 @@
+from django.db.models import Count, Avg
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views import View
 
+from blog.models import Post
 from spaces.models import Space
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.views.generic import ListView, DetailView
@@ -85,11 +87,23 @@ class ProfileDetailView(DetailView):
         context["follow"] = follow
         return context
 
-class RecommendationView(LoginRequiredMixin, ListView):
-    model = Space
-    template_name = 'spaces/recommendations.html'
-    context_object_name = 'spaces'
-    ordering = ['-date_created']
+def recommendation_view(request):
+    # Kullanıcının seçtiği kategorileri al
+    user = request.user
+    profile = Profile.objects.get(user=user)
+    selected_categories = profile.categories.all()
 
-    def get_queryset(self):
-        return self.request.user.profile.get_recommendations()
+    # Bu kategorilere ait ve belirli kriterlere uyan spaceleri bul
+    recommended_spaces = Space.objects.filter(
+        category__in=selected_categories,
+        posts__policy=Post.PUBLIC,
+    ).annotate(
+        post_count=Count('posts'),
+        avg_likes=Avg('posts__likes')
+    ).filter(
+        post_count__gte=5,
+        avg_likes__gte=3,
+    )
+
+    # Bu spaceleri bir öneri sayfasında göster
+    return render(request, 'recommendations.html', {'spaces': recommended_spaces})
