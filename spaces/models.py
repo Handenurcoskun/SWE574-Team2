@@ -24,6 +24,7 @@ class Space(models.Model):
     policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
     members = models.ManyToManyField(User, through='SpaceMembership', related_name='spaces', blank=True)
     image = models.ImageField(default='space_default.jpg', upload_to='space_pics')
+    categories = models.ManyToManyField(Category)
 
 
     def __str__(self):

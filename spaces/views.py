@@ -358,7 +358,7 @@ def recommend_spaces(request):
     selected_categories = request.user.profile.categories.all()
 
     # Filter spaces which have these categories
-    spaces = Space.objects.filter(categories__in=selected_categories)
+    spaces = Space.objects.filter(category__in=selected_categories)
 
     # For each space, get all posts and calculate the total posts' amount and average likes
     relevant_spaces = []
