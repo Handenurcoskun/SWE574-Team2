@@ -137,18 +137,15 @@
       >
       <div>
         {% for tag in post.tags.all %}
-        <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success"
-          >{{ tag.name }}</a
-        >
-        {% endfor %}
-      </div>
-      {#todo: when added image on post will be saved on db this check will be valid
-       {% if post.image != "post_default.jpg" %} #}
-              <img
-      style="width:100%;"
-      src="{{ post.image.url }}"
-    />
-      {# {% endif %} #}
+  <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">
+    {{ tag.name }}
+  </a>
+  {% endfor %}
+  </div> <!-- Move the closing endif tag here -->
+
+  {% if post.image != "post_default.jpg" %}
+   <img style="width: 100%;" src="{{ post.image.url }}" />
+  {% endif %}
 
     </div>
     <div>
