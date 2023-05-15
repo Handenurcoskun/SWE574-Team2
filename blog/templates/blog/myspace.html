@@ -13,9 +13,15 @@
         <a class="article-link" href="{{ post.link }}" target="_blank" name="link" id="preview_link{{ post.id }}" onmouseover="loadPreview('{{ post.id }}', '{{ post.link }}')">{{ post.link }}</a>
         <div>
           {% for tag in post.tags.all %}
-            <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
+             <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">
+        {{ tag.name }}
+        </a>
           {% endfor %}
-        </div>
+          </div> <!-- Move the closing endif tag here -->
+
+        {% if post.image != "post_default.jpg" %}
+            <img style="width: 100%;" src="{{ post.image.url }}" />
+          {% endif %}
         <form class="like-form">
           {% csrf_token %}
           <input type="hidden" name="post_id" value="{{ post.id }}">
