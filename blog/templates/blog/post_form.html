@@ -8,7 +8,7 @@
                 <br>
                 Are you sure you want to submit another post with the same link?
             </div>
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Create a Post</legend>
@@ -20,7 +20,7 @@
                 </div>
             </form>
         {% else %}
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <fieldset class="form-group">
                     <legend class="border-bottom mb-4">Create a Post</legend>
