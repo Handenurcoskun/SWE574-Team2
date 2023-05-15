@@ -125,11 +125,6 @@
               <a class="nav-item nav-link" href="{% url 'register' %}"
                 >Register</a
               >
-              <div class="navbar-nav">
-				  {% if user.is_authenticated %}
-				  <a class="nav-item nav-link" href="{% url 'recommendations' %}">Recommendations</a>
-				  {% endif %}
-              </div>
               {% endif %}
             </div>
           </div>

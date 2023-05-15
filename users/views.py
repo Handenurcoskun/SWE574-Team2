@@ -9,7 +9,7 @@ from spaces.models import Space
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.views.generic import ListView, DetailView
 from .models import Profile, Category
-from django.views.generic import ListView
+# from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 def follow_unfollow_profile(request):
@@ -87,23 +87,5 @@ class ProfileDetailView(DetailView):
         context["follow"] = follow
         return context
 
-def recommendation_view(request):
-    # Kullanıcının seçtiği kategorileri al
-    user = request.user
-    profile = Profile.objects.get(user=user)
-    selected_categories = profile.categories.all()
 
-    # Bu kategorilere ait ve belirli kriterlere uyan spaceleri bul
-    recommended_spaces = Space.objects.filter(
-        category__in=selected_categories,
-        posts__policy=Post.PUBLIC,
-    ).annotate(
-        post_count=Count('posts'),
-        avg_likes=Avg('posts__likes')
-    ).filter(
-        post_count__gte=5,
-        avg_likes__gte=3,
-    )
 
-    # Bu spaceleri bir öneri sayfasında göster
-    return render(request, 'recommendations.html', {'spaces': recommended_spaces})

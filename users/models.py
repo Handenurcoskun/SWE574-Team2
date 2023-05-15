@@ -6,8 +6,8 @@ from PIL import Image
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from blog.models import Post
-from spaces.models import Space
+# from blog.models import Post
+# from spaces.models import Space
 from django.db.models import Count, Avg
 
 class Category(models.Model):
@@ -41,15 +41,6 @@ class Profile(models.Model):
     def profiles_posts(self):
         return self.post_set.all()
 
-    class Meta:
-        ordering = ('-created',)
 
-    def get_recommendations(self):
-        spaces = Space.objects.filter(category__in=self.categories.all())
-        recommendations = []
-        for space in spaces:
-            posts = space.posts.filter(policy=Post.PUBLIC)
-            total_likes = sum(post.likes.count() for post in posts)
-            if posts.count() >= 5 and (total_likes / posts.count()) >= 3:
-                recommendations.append(space)
-        return recommendations
+
+
