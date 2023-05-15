@@ -22,6 +22,7 @@ class Profile(models.Model):
     categories = models.ManyToManyField(Category, related_name='categories', blank=True)
 
 
+
     def __str__(self):
         return f'{self.user.username} Profile'
 

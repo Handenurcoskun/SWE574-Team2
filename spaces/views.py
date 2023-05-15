@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from itertools import chain
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.views.generic import (
     ListView,
     DetailView,
@@ -27,6 +27,7 @@ from .models import SpaceMembership, PrivateSpaceRequest
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from users import forms
 
 
 
@@ -350,3 +351,24 @@ def user_posts(request, username):
         'posts': posts,
     }
     return render(request, 'spaces/user_posts.html', context)
+
+
+def recommend_spaces(request):
+    # Get the categories checked by the user
+    selected_categories = request.user.profile.categories.all()
+
+    # Filter spaces which have these categories
+    spaces = Space.objects.filter(categories__in=selected_categories)
+
+    # For each space, get all posts and calculate the total posts' amount and average likes
+    relevant_spaces = []
+    for space in spaces:
+        posts = Post.objects.filter(space=space)
+        post_count = posts.count()
+        avg_likes = posts.aggregate(Avg('likes'))
+
+        if post_count >= 5 and avg_likes >= 3:
+            relevant_spaces.append(space)
+
+    # Pass the relevant spaces to the template
+    return render(request, 'spaces/recommendations.html', {'spaces': relevant_spaces})

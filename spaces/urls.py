@@ -10,6 +10,7 @@ from .views import (
     ChangeMemberRoleView,
     search,
     user_posts,
+    recommend_spaces,
 )
 # below are paths
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
     path('spaces/memberships/<int:membership_id>/change_member_role/', ChangeMemberRoleView.as_view(), name='change-member-role'),
     path('search/', search, name='search'),
     path('user/<str:username>/', user_posts, name='user_posts'),
+    path('recommendations/', recommend_spaces, name='recommendations'),
 ]
