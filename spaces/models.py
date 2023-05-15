@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from PIL import Image
 
+from users.models import Category
+
+
 class Space(models.Model):
 
     PUBLIC = 'public'
@@ -14,6 +17,7 @@ class Space(models.Model):
         (PRIVATE, 'Private'),
     ]
 
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True)
     name = models.CharField(max_length = 100, unique=True)
     description = models.TextField(max_length = 500)
     date_created = models.DateTimeField(default=timezone.now)

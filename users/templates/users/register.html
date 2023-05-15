@@ -26,7 +26,7 @@
 	document.addEventListener('DOMContentLoaded', function() {
 	    const addCategoryButton = document.getElementById('add-category-button');
 	    const addCategoryInput = document.getElementById('add-category-input');
-	    const categoryCheckboxes = document.querySelectorAll('input[type=checkbox]');
+	    const categoryContainer = document.querySelector(".form-group");
 
 	    addCategoryButton.addEventListener('click', function() {
 	        const newCategoryName = addCategoryInput.value.trim();
@@ -44,9 +44,8 @@
 	            container.appendChild(newCheckbox);
 	            container.appendChild(label);
 
-	            const categoryContainer = categoryCheckboxes[0].parentElement.parentElement;
-	            categoryContainer.appendChild(container);
-	            addCategoryInput.value = '';
+	            categoryContainer.insertBefore(container, addCategoryInput.parentElement);
+                addCategoryInput.value = '';
 	        }
 	    });
 	});

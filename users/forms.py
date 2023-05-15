@@ -52,6 +52,7 @@ class ProfileUpdateForm(forms.ModelForm):
     categories = forms.ModelMultipleChoiceField(
         queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple,
+        required=False,
     )
     custom_category = forms.CharField(
         max_length=100,
@@ -100,7 +101,8 @@ class UserRegisterForm(UserCreationForm):
         for category_name in custom_categories:
             category, created = Category.objects.get_or_create(name=category_name)
             categories.append(category)
-        cleaned_data['categories'] = categories
+            cleaned_data['categories'] = categories
+        return cleaned_data
 
     def save(self, commit=True):
         user = super(UserRegisterForm, self).save(commit=False)
