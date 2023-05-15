@@ -16,7 +16,8 @@ class Space(models.Model):
         (PRIVATE, 'Private'),
     ]
 
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True)
+    category = models.ForeignKey(Category, related_name='single_category_spaces', on_delete=models.CASCADE, blank=True)
+    categories = models.ManyToManyField(Category, related_name='multiple_categories_spaces')
     name = models.CharField(max_length = 100, unique=True)
     description = models.TextField(max_length = 500)
     date_created = models.DateTimeField(default=timezone.now)
@@ -24,7 +25,7 @@ class Space(models.Model):
     policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
     members = models.ManyToManyField(User, through='SpaceMembership', related_name='spaces', blank=True)
     image = models.ImageField(default='space_default.jpg', upload_to='space_pics')
-    categories = models.ManyToManyField(Category)
+
 
 
     def __str__(self):
