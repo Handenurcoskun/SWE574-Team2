@@ -1,9 +1,14 @@
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
 from django.contrib.auth.models import User
 from PIL import Image
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from blog.models import Post
+from spaces.models import Space
+from django.db.models import Count, Avg
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -39,8 +44,12 @@ class Profile(models.Model):
     class Meta:
         ordering = ('-created',)
 
-# @receiver(post_save, sender=User)
-# def create_profile(sender, instance, created, **kwargs):
-#     if created:
-#         Profile.objects.create(user=instance)
-#         instance.profile.save()
+    def get_recommendations(self):
+        spaces = Space.objects.filter(category__in=self.categories.all())
+        recommendations = []
+        for space in spaces:
+            posts = space.posts.filter(policy=Post.PUBLIC)
+            total_likes = sum(post.likes.count() for post in posts)
+            if posts.count() >= 5 and (total_likes / posts.count()) >= 3:
+                recommendations.append(space)
+        return recommendations

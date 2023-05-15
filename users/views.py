@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views import View
+
+from spaces.models import Space
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.views.generic import ListView, DetailView
 from .models import Profile, Category
-
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def follow_unfollow_profile(request):
     if request.method == 'POST':
@@ -80,3 +84,12 @@ class ProfileDetailView(DetailView):
             follow = False
         context["follow"] = follow
         return context
+
+class RecommendationView(LoginRequiredMixin, ListView):
+    model = Space
+    template_name = 'spaces/recommendations.html'
+    context_object_name = 'spaces'
+    ordering = ['-date_created']
+
+    def get_queryset(self):
+        return self.request.user.profile.get_recommendations()
