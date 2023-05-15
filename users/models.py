@@ -5,9 +5,6 @@ from django.contrib.auth.models import User
 from PIL import Image
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-# from blog.models import Post
-# from spaces.models import Space
 from django.db.models import Count, Avg
 
 class Category(models.Model):

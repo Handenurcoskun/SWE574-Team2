@@ -3,8 +3,6 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 from PIL import Image
-
-from blog.models import Post
 from users.models import Category
 
 
