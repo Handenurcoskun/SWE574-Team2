@@ -84,13 +84,13 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 url = urlparse(DATABASE_URL)
 
 DATABASES = {
-        'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'swe574',
-        'USER': 'hakan',
-        'PASSWORD': 'root',
-        'HOST': 'db',
-        'PORT': '3306'
+        'NAME': url.path[1:],
+        'USER': url.username,
+        'PASSWORD': url.password,
+        'HOST': url.hostname,
+        'PORT': url.port,
     }
 }
 
@@ -135,7 +135,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
+# Default primary key field type
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
