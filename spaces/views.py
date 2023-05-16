@@ -365,9 +365,13 @@ def recommend_spaces(request):
     for space in spaces:
         posts = Post.objects.filter(space=space)
         post_count = posts.count()
-        avg_likes = posts.aggregate(Avg('likes'))
+        avg_likes = posts.aggregate(avg_likes=Avg('likes'))['avg_likes']
 
-        if post_count >= 5 and avg_likes >= 3:
+        # Check if the current user is a member or the owner of the space
+        if request.user in space.members.all() or request.user == space.owner:
+            continue
+
+        if post_count >= 5 and avg_likes and avg_likes >= 3:
             relevant_spaces.append(space)
 
     # Pass the relevant spaces to the template
