@@ -1,0 +1,9 @@
+{% extends "blog/base.html" %}
+{% block content %}
+  <h1>Recommended Spaces</h1>
+  {% for space in spaces %}
+    <article class="media content-section">
+      <h2><a class="article-title" href="{% url 'space-detail' space.id %}">{{ space.name }}</a></h2>
+    </article>
+  {% endfor %}
+{% endblock content %}

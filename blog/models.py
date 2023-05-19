@@ -24,12 +24,12 @@ class Post(models.Model):
         (PENDING, 'Pending'),
     ]
 
-    policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC)
-    title = models.CharField(max_length = 100)
-    content = models.TextField(max_length = 500)
+    policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC, blank=False)
+    title = models.CharField(max_length = 100, blank=False)
+    content = models.TextField(max_length = 500, blank=False)
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    link = models.URLField(default='')
+    link = models.URLField(default='', blank=False)
     space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='posts', blank=True, null=True)
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)                                                                            

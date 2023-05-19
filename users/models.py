@@ -1,7 +1,17 @@
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
 from django.contrib.auth.models import User
 from PIL import Image
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db.models import Count, Avg
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -9,6 +19,8 @@ class Profile(models.Model):
     following = models.ManyToManyField(User, related_name='following', blank=True)
     updated = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(default=timezone.now)
+    categories = models.ManyToManyField(Category, related_name='categories', blank=True)
+
 
 
     def __str__(self):
@@ -27,5 +39,6 @@ class Profile(models.Model):
     def profiles_posts(self):
         return self.post_set.all()
 
-    class Meta:
-        ordering = ('-created',)
+
+
+

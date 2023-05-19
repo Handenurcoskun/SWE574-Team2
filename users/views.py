@@ -1,10 +1,16 @@
+from django.db.models import Count, Avg
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views import View
+
+from blog.models import Post
+from spaces.models import Space
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.views.generic import ListView, DetailView
-from .models import Profile
-
+from .models import Profile, Category
+# from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def follow_unfollow_profile(request):
     if request.method == 'POST':
@@ -21,9 +27,12 @@ def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            selected_categories = form.cleaned_data.get('categories')
+            user.profile.categories.set(selected_categories)
+            user.profile.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!')
+            messages.success(request, f'Your account has been created! You are now able to log in')
             return redirect('login')
     else:
         form = UserRegisterForm()
@@ -77,3 +86,6 @@ class ProfileDetailView(DetailView):
             follow = False
         context["follow"] = follow
         return context
+
+
+

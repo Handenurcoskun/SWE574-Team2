@@ -1,13 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from users.models import Profile
+from users.models import Profile, Category
 import requests
 from bs4 import BeautifulSoup
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from itertools import chain
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.views.generic import (
     ListView,
     DetailView,
@@ -18,11 +18,17 @@ from django.views.generic import (
 from .models import Space, SpaceMembership
 from blog.models import Post
 from django.views import View
+from django.db.models import Q
 
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .models import SpaceMembership, PrivateSpaceRequest
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from users import forms
+
 
 
 def home(request):
@@ -37,6 +43,12 @@ class SpaceListView(ListView):
     template_name = 'spaces/space_list.html'
     context_object_name = 'spaces'
     ordering = ['-date_created']
+
+    def get_queryset(self):
+        user = self.request.user
+        user_categories = user.profile.categories.all()
+        return Space.objects.filter(category__in=user_categories).order_by('-date_created')
+
 
 # class MySpacesListView(ListView):
 #     model = Space
@@ -125,16 +137,29 @@ class SpaceDetailView(LoginRequiredMixin, DetailView):
 
 class SpaceCreateView(LoginRequiredMixin, CreateView):
     model = Space
-    fields = ['name', 'description', 'policy', 'image']
+    fields = ['name', 'description', 'policy', 'image', 'category']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
+
+        # Create a new category if the new_category field is not empty
+        new_category = self.request.POST.get('new_category', '').strip()
+        if new_category:
+            category, _ = Category.objects.get_or_create(name=new_category)
+            form.instance.category = category
+            self.request.user.profile.categories.add(category)  # Add the new category to the user's profile categories
+
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class SpaceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Space
-    fields = ['name', 'description', 'policy', 'image']
+    fields = ['name', 'description', 'policy', 'image', 'category']
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
@@ -145,6 +170,11 @@ class SpaceUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if self.request.user == space.owner:
             return True
         return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        return context
 
 
 class SpaceDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -293,13 +323,12 @@ def search(request):
     user = request.user
     if query:
         spaces = Space.objects.filter(
-            Q(name__icontains=query) | Q(description__icontains=query)
+            Q(name__icontains=query) | Q(description__icontains=query) | Q(category__name__icontains=query),
         ).distinct()
 
         # Filter out private posts for everyone except the author
         posts = Post.objects.filter(
-            Q(title__icontains=query) | Q(content__icontains=query) | Q(
-                tags__name__icontains=query),
+            Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query),
             Q(policy='public') | (Q(policy='private') & Q(author=user))
         ).distinct()
     else:
@@ -322,3 +351,28 @@ def user_posts(request, username):
         'posts': posts,
     }
     return render(request, 'spaces/user_posts.html', context)
+
+
+def recommend_spaces(request):
+    # Get the categories checked by the user
+    selected_categories = request.user.profile.categories.all()
+
+    # Filter spaces which have these categories
+    spaces = Space.objects.filter(category__in=selected_categories)
+
+    # For each space, get all posts and calculate the total posts' amount and average likes
+    relevant_spaces = []
+    for space in spaces:
+        posts = Post.objects.filter(space=space)
+        post_count = posts.count()
+        avg_likes = posts.aggregate(avg_likes=Avg('likes'))['avg_likes']
+
+        # Check if the current user is a member or the owner of the space
+        if request.user in space.members.all() or request.user == space.owner:
+            continue
+
+        if post_count >= 5 and avg_likes and avg_likes >= 3:
+            relevant_spaces.append(space)
+
+    # Pass the relevant spaces to the template
+    return render(request, 'spaces/recommendations.html', {'spaces': relevant_spaces})

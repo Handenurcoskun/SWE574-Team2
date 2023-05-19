@@ -1,21 +1,54 @@
 {% extends "blog/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <div class="content-section">
-      <form method="POST">
+  <div class="content-section">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <fieldset class="form-group">
-          <legend class="border-bottom mb-4">Registration</legend>
-          {{ form|crispy }}
+            <legend class="border-bottom mb-4">Join Today</legend>
+            {{ form|crispy }}
+            <div id="add-category-container">
+                <input id="add-category-input" type="text" placeholder="Add a new category" />
+                <button id="add-category-button" type="button">Add</button>
+            </div>
         </fieldset>
         <div class="form-group">
-          <button class="btn btn-outline-info" type="submit">Sign Up!</button>
+            <button class="btn btn-outline-info" type="submit">Sign Up</button>
         </div>
-      </form>
-      <div class="border-top pt3">
+    </form>
+    <div class="border-top pt-3">
         <small class="text-muted">
-          Already have an account?<a class="ml-2" href="{% url 'login' %}">Log In</a>
+            Already Have An Account? <a class="ml-2" href="{% url 'login' %}">Sign In</a>
         </small>
-      </div>
     </div>
+  </div>
+  <script>
+	document.addEventListener('DOMContentLoaded', function() {
+	    const addCategoryButton = document.getElementById('add-category-button');
+	    const addCategoryInput = document.getElementById('add-category-input');
+	    const categoryContainer = document.querySelector(".form-group");
+
+	    addCategoryButton.addEventListener('click', function() {
+	        const newCategoryName = addCategoryInput.value.trim();
+	        if (newCategoryName) {
+	            const newCheckbox = document.createElement('input');
+	            newCheckbox.type = 'checkbox';
+	            newCheckbox.name = 'custom_categories';
+	            newCheckbox.value = newCategoryName;
+	            newCheckbox.checked = true;
+
+	            const label = document.createElement('label');
+	            label.textContent = newCategoryName;
+
+	            const container = document.createElement('div');
+	            container.appendChild(newCheckbox);
+	            container.appendChild(label);
+
+	            categoryContainer.insertBefore(container, addCategoryInput.parentElement);
+                addCategoryInput.value = '';
+	        }
+	    });
+	});
+  </script>
 {% endblock content %}
+

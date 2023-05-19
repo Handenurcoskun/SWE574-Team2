@@ -1,16 +1,36 @@
 {% extends "blog/base.html" %}
 {% load crispy_forms_tags %}
+
 {% block content %}
-    <div class="content-section">
-      <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <fieldset class="form-group">
-          <legend class="border-bottom mb-4">Create a Space</legend>
-          {{ form|crispy }}
-        </fieldset>
-        <div class="form-group">
-          <button class="btn btn-outline-info" type="submit">Done</button>
-        </div>
-      </form>
-    </div>
+  <div class="content-section">
+    <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm();">
+      {% csrf_token %}
+      <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Create a Space</legend>
+        {{ form|crispy }}
+      </fieldset>
+
+      <div class="form-group">
+        <label for="new_category">New Category:</label>
+        <input type="text" class="form-control" id="new_category" name="new_category" placeholder="Enter a new category if not found in the list">
+      </div>
+
+      <div class="form-group">
+        <button class="btn btn-outline-info" type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function validateForm() {
+      const categorySelect = document.querySelector('#id_category');
+      const newCategoryInput = document.querySelector('#new_category');
+
+      if (!categorySelect.value && !newCategoryInput.value.trim()) {
+        alert('Please select a category or enter a new category name.');
+        return false;
+      }
+      return true;
+    }
+  </script>
 {% endblock content %}

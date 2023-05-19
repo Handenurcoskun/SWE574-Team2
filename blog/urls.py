@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     PostListView,
     PostDetailView,
-    PostCreateView,
+    # PostCreateView,
     PostCreateUnderSpaceView,
     PostUpdateView,
     PostDeleteView,
@@ -23,7 +23,7 @@ urlpatterns = [
     path('favouriteposts', views.favourite_posts, name='favourite-posts'),
     path('like_post/', LikePostView.as_view(), name='like_post'),                                                             
     path('filtertags/<int:pk>', views.filter_tags, name='filter-tags'),                                                                 
-    path('post/new/', PostCreateView.as_view(), name='post-create'),
+    # path('post/new/', PostCreateView.as_view(), name='post-create'),
     path('post/<int:space_id>/new/', PostCreateUnderSpaceView.as_view(), name='post-create-under-space'),
     path('post/<int:pk>/update', PostUpdateView.as_view(), name='post-update'),
     path('post/<int:pk>/delete', PostDeleteView.as_view(), name='post-delete'),

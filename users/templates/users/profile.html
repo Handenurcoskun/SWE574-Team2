@@ -20,5 +20,21 @@
         <button class="btn btn-outline-info" type="submit">Save</button>
       </div>
     </form>
+    <div id="categories-list">
+      {% for category in user.profile.categories.all %}
+        <div class="category-item" id="category-{{ category.id }}">
+          {{ category.name }}
+          <input type="checkbox" checked="checked" class="category-checkbox" data-category-id="{{ category.id }}">
+        </div>
+      {% endfor %}
+    </div>
   </div>
+	<script>
+	    function handleNewCategoryCheckbox(categoryId) {
+	      const checkbox = document.querySelector(`.category-checkbox[data-category-id="${categoryId}"]`);
+	      if (checkbox) {
+	        checkbox.checked = true;
+	      }
+	    }
+	</script>
 {% endblock content %}

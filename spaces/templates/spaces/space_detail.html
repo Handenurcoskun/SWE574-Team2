@@ -7,25 +7,27 @@
         >{{ object.owner }}</a
       >
       <small class="text-muted">{{ object.date_created|date:"F d, Y" }}</small>
+    <br>
+    <div>
       {% if object.owner == user or is_member%}
-      <a
-        class="btn btn-info btn-sm mt-1 mb-1"
-        href="{% url 'members-list' object.id %}"
-        >View Members</a
-      >
+	      <a
+	        class="btn btn-info btn-sm mt-1 mb-1"
+	        href="{% url 'members-list' object.id %}"
+	        >View Members</a
+	      >
       {% endif %} {% if object.owner == user %}
-      <div>
-        <a
-          class="btn btn-secondary btn-sm mt-1 mb-1"
-          href="{% url 'space-update' object.id %}"
-          >Update the Space</a
-        >
-        <a
-          class="btn btn-danger btn-sm mt-1 mb-1"
-          href="{% url 'space-delete' object.id %}"
-          >Delete the Space</a
-        >
-      </div>
+
+	        <a
+	          class="btn btn-secondary btn-sm mt-1 mb-1"
+	          href="{% url 'space-update' object.id %}"
+	          >Update the Space</a
+	        >
+	        <a
+	          class="btn btn-danger btn-sm mt-1 mb-1"
+	          href="{% url 'space-delete' object.id %}"
+	          >Delete the Space</a
+	        >
+    </div>
       <form
         class=""
         action="{% url 'post-create-under-space' object.pk %}"
@@ -106,9 +108,20 @@
       </form>
       {% endif %}
     </div>
+    <div style="display: flex; flex-direction: column;">
+        <div class="content-section">
+	        <h2 class="article-title">{{ object.name }}</h2>
+        </div>
+        <div class="content-section">
+	        <p class="article-content">{{ object.description }}</p>
+        </div>
+        <div class="content-section">
+		   {% if object.category %}
+			   <p><strong>Category:</strong> {{ object.category.name }}</p>
+		   {% endif %}
+	    </div>
+    </div>
   </div>
-  <h2 class="article-title">{{ object.name }}</h2>
-  <p class="article-content">{{ object.description }}</p>
 </article>
 {% if object.owner == user or is_member or is_public_space %}
 <div class="container mt-4">
