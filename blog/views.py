@@ -85,16 +85,14 @@ class PostDetailView(LoginRequiredMixin, DetailView):
             comment.save()
             return redirect('post-detail', pk=self.get_object().pk)
 
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
 
-# class PostCreateView(LoginRequiredMixin, CreateView):
-#     model = Post
-#
-#     fields = ['title', 'content', 'link', 'tags', 'policy']
-#
-#     def form_valid(self, form):
-#         form.instance.author = self.request.user
-#         return super().form_valid(form)
+    fields = ['title', 'content', 'link', 'tags', 'policy', 'image']
 
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
 class PostCreateUnderSpaceView(LoginRequiredMixin, CreateView):
     model = Post

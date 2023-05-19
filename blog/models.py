@@ -34,7 +34,7 @@ class Post(models.Model):
     favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)                                                                            
     tags = TaggableManager(blank=True)
-    image = models.ImageField(default='space_default.jpg', upload_to='space_pics', blank=True)
+    image = models.ImageField(default='post_default.jpg', upload_to='post_pics', blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
 
 
