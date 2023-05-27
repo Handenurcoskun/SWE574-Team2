@@ -1,0 +1,9 @@
+{% extends "blog/base.html" %}
+{% block content %}
+  <h1>Recommended Users</h1>
+  {% for user in users %}
+    <article class="media content-section">
+      <h2><a class="article-title" href="{% url 'user-posts' user.user.username %}">{{ user.user.username }}</a></h2>
+    </article>
+  {% endfor %}
+{% endblock content %}

@@ -8,7 +8,7 @@ from blog.models import Post
 from spaces.models import Space
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.views.generic import ListView, DetailView
-from .models import Profile, Category
+from .models import Profile, Category, User
 # from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -88,4 +88,31 @@ class ProfileDetailView(DetailView):
         return context
 
 
+def recommend_users(request):
+    # Get the categories checked by the user
+    selected_categories = request.user.profile.categories.all()
+
+    # Filter spaces which have these categories
+    users = Profile.objects.filter(categories__in=selected_categories)
+
+    # For each space, get all posts and calculate the total posts' amount and average likes
+    """relevant_users = []
+    first_encounter = []
+    for user in users:
+        if user in first_encounter and user not in relevant_users and user.id != request.user.id:
+            relevant_users.append(user)
+        else:
+            first_encounter.append(user)"""
+
+    counts = {}
+    relevant_users = []
+
+    for user in users:
+        counts[user] = counts.get(user, 0) + 1
+
+        if counts[user] >= 2 and user not in relevant_users and user.id != request.user.id:
+            relevant_users.append(user)
+
+    # Pass the relevant spaces to the template
+    return render(request, 'users/recommendations.html', {'users': relevant_users})
 
