@@ -18,12 +18,10 @@
         </a>
           {% endfor %}
           </div> <!-- Move the closing endif tag here -->
-
-        {% if post.image %}
+          
+        {% if post.image != "post_default.jpg" %}
             <img style="width: 100%;" src="{{ post.image.url }}" />
-        {% else %}
-            <img style="width: 100%;" src="/media/default.jpg" />
-        {% endif %}
+          {% endif %}
         <form class="like-form">
           {% csrf_token %}
           <input type="hidden" name="post_id" value="{{ post.id }}">
