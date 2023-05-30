@@ -54,7 +54,6 @@
             integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/5v5zS4pJocDzODDp5pBs8e7Kw5qo1m7kmSV4/"
             crossorigin="anonymous"
     />
-
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>{% block title %}Your App Name{% endblock %}</title>
@@ -69,10 +68,42 @@
             border-spacing: 20px; /* Adjust this value to increase or decrease the spacing between columns */
         }
     </style>
-</head>
-<body>
-<header class="site-header">
-    <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+
+    <!-- jQuery must be included before Annotator -->
+    <script src="{% static 'blog/annotator-1.2.10/lib/vendor/jquery.js' %}"></script>
+
+    <!-- If you're sure your users will only be using browsers modern
+         enough to have their own JSON.parse and JSON.stringify
+         implementations you can skip this -->
+    <script src="{% static 'blog/annotator-1.2.10/lib/vendor/json2.js' %}"></script>
+
+    <!-- The main Annotator script -->
+    <script src="{% static 'blog/annotator-1.2.10/pkg/annotator.min.js' %}"></script>
+
+    <!-- Annotator's styling and images -->
+    <link rel="stylesheet" type="text/css" href="{% static 'blog/annotator-1.2.10/pkg/annotator.min.css' %}">
+
+    <!-- The Store plugin. Saves annotations to a remote backend -->
+    <script src="{% static 'blog/annotator-1.2.10/pkg/annotator.store.min.js' %}"></script>
+
+    <!-- The Auth plugin. Allows users of Annotator to authenticate themselves
+         to the remote backend -->
+    <script src="{% static 'blog/annotator-1.2.10/pkg/annotator.auth.min.js' %}"></script>
+
+    <!-- The Permissions plugin. See who created which annotation and create
+         annotations as a specified user -->
+    <script src="{% static 'blog/annotator-1.2.10/pkg/annotator.permissions.min.js' %}"></script>
+
+    <!-- The Tags plugin. Edit and display tag keywords on annotations -->
+    <script src="{% static 'blog/annotator-1.2.10/pkg/annotator.tags.min.js' %}"></script>
+
+    <!-- The Markdown plugin. Treat annotation text as Markdown -->
+    <script src="{% static 'blog/annotator-1.2.10/lib/vendor/showdown.js' %}"></script>
+    <script src="{% static 'blog/annotator-1.2.10/pkg/annotator.markdown.min.js' %}"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
         <div class="container">
             <a class="navbar-brand mr-4" href="{% url 'blog-home' %}">ShareIt</a>
             <button

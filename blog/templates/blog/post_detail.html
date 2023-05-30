@@ -1,11 +1,8 @@
 {% extends "blog/base.html" %}
 {% block content %}
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/1L_dstPt3HV5HzF6Gvk/e3I+1sI2Fp6XgmtS4K" crossorigin="anonymous">
-
   <article class="media content-section">
     <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
-    <div class="media-body">
+    <div class="media-body" id="postToAnnotate">
       <div class="article-metadata">
         <a class="mr-2" href="{% url 'user-posts' object.author.username %}">{{ object.author }}</a>
         <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
@@ -46,7 +43,7 @@
           <button type="submit" class="btn btn-link {% if user in post.likes.all %}text-primary{% endif %}">
             <i class="fas fa-heart {% if post.likes.count == 0 %}text-muted{% endif %}"></i> <span class="like-count">{{ post.likes.count }}</span>
           </button>
-        </form>							  
+        </form>
     </div>
     <div class="spinner-border text-success not-visible" id="preview_loader{{ object.id }}" role="status">
           <span class="sr-only">Loading...</span>
@@ -80,8 +77,45 @@
               </form>
           </div>
       </div>
-  {% endif %}										
+  {% endif %}
   <script>
+    console.log(jQuery);  // This should print the jQuery function
+  </script>
+  <script>
+    jQuery(function ($) {
+      if (typeof $.fn.annotator !== 'function') {
+        alert("Ooops! it looks like you haven't built the Annotator concatenation file. " +
+              "Either download a tagged release from GitHub, or modify the Cakefile to point " +
+              "at your copy of the YUI compressor and run `cake package`.");
+      } else {
+        // This is the important bit: how to create the annotator and add
+        // plugins
+        var content = $('#postToAnnotate').annotator()
+            .annotator('addPlugin', 'Permissions')
+            .annotator('addPlugin', 'Markdown')
+            .annotator('addPlugin', 'Tags')
+            .annotator('addPlugin', 'Store', {
+              // The endpoint of the store on your server.
+              prefix: 'http://3.76.20.138:5000/',
+
+              // Attach the uri of the current page to all annotations to allow search.
+              annotationData: {
+                'uri': 'post/{{object.id}}',
+                'user': '{{user}}'
+              },
+
+              // This will perform a "search" action when the plugin loads. Will
+              // request the last 20 annotations for the current url.
+              // eg. /store/endpoint/search?limit=20&uri=http://this/document/only
+              loadFromSearch: {
+                'limit': 20,
+                'uri': 'post/{{object.id}}'
+              }
+            });
+
+        content.data('annotator').plugins['Permissions'].setUser("{{user}}");
+      }
+    });
     function loadPreview(id, link) {
         console.log(id, link);
         console.log('preview_title' + id);
@@ -157,6 +191,6 @@
           });
         });
       });
-    });														 
+    });
   </script>
 {% endblock content %}
