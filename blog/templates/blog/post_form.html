@@ -2,52 +2,35 @@
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <div class="content-section">
-        {% if duplicate_post %}
-            <div class="alert alert-warning" role="alert">
-                A post with the same link already exists: <a href="{{ duplicate_post.get_absolute_url }}">{{ duplicate_post.title }}</a>.
-                <br>
-                Are you sure you want to submit another post with the same link?
+  <div class="content-section">
+    {% if duplicate_post %}
+        <div class="alert alert-warning" role="alert">
+            A post with the same link already exists: <a href="{{ duplicate_post.get_absolute_url }}">{{ duplicate_post.title }}</a>.
+            <br>
+            Are you sure you want to submit another post with the same link?
+        </div>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Create a Post</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button type="submit" name="confirm" value="yes" class="btn btn-warning">Yes, submit anyway</button>
+                 <button style="background-color: #C19A6B" type="submit" name="deny" value="no" class="btn btn-warning">No, do not submit </button>
             </div>
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <fieldset class="form-group">
-                    <legend class="border-bottom mb-4">Create a Post</legend>
-                    {{ form|crispy }}
-                </fieldset>
-                <div class="form-group">
-                    <button type="submit" name="confirm" value="yes" class="btn btn-warning">Yes, submit anyway</button>
-                    <button style="background-color: #C19A6B" type="submit" name="deny" value="no" class="btn btn-warning">No, do not submit</button>
-                </div>
-            </form>
-        {% else %}
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <fieldset class="form-group">
-                    <legend class="border-bottom mb-4">Create a Post</legend>
-                    {{ form|crispy }}
-                </fieldset>
-                <div class="form-group">
-                    <button class="btn btn-outline-info" type="submit" id="submit-btn">Done</button>
-                </div>
-            </form>
-        {% endif %}
-    </div>
-    <script>
-        document.getElementById("submit-btn").addEventListener("click", function(event) {
-            event.preventDefault(); // Prevent the default form submission
-            // Custom logic or validation can be added here
-            // For example, you can check if the required fields are filled before submitting the form
-            var titleInput = document.getElementById("id_title");
-            var contentInput = document.getElementById("id_content");
-
-            if (titleInput.value.trim() === "" || contentInput.value.trim() === "") {
-                alert("Title and content fields cannot be empty.");
-                return;
-            }
-
-            // Submit the form if all conditions are met
-            document.getElementById("post-form").submit();
-        });
-    </script>
+        </form>
+    {% else %}
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Create a Post</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Done</button>
+            </div>
+        </form>
+    {% endif %}
+  </div>
 {% endblock content %}
