@@ -3,6 +3,7 @@ BeautifulSoup4==4.11.1
 Django==4.1.2
 django-crispy-forms==1.14.0
 django-taggit==3.1.0
+django-autocomplete-light==3.9.7
 mysql-connector-python==8.0.31
 mysqlclient==2.1.1
 Pillow==9.3.0

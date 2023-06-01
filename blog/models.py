@@ -5,54 +5,81 @@ from django.urls import reverse
 from taggit.managers import TaggableManager
 from spaces.models import Space, SpaceMembership
 
+
+class WikidataEntity(models.Model):
+    entity_id = models.CharField(max_length=255, unique=True)
+    label = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.label
+
+
+# class WikidataSubtype(models.Model):
+#     entity = models.ForeignKey(
+#         WikidataEntity, related_name="subtypes", on_delete=models.CASCADE
+#     )
+#     subtype_id = models.CharField(max_length=255, unique=True)
+#     label = models.CharField(max_length=255)
+
+#     def __str__(self):
+#         return self.label
+
 class Post(models.Model):
-    PUBLIC = 'public'
-    PRIVATE = 'private'
+    PUBLIC = "public"
+    PRIVATE = "private"
 
     POLICY_CHOICES = [
-        (PUBLIC, 'Public'),
-        (PRIVATE, 'Private'),
+        (PUBLIC, "Public"),
+        (PRIVATE, "Private"),
     ]
 
-    APPROVED = 'approved'
-    REJECTED = 'rejected'
-    PENDING = 'pending'
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    PENDING = "pending"
 
     STATUS_CHOICES = [
-        (APPROVED, 'Approved'),
-        (REJECTED, 'Rejected'),
-        (PENDING, 'Pending'),
+        (APPROVED, "Approved"),
+        (REJECTED, "Rejected"),
+        (PENDING, "Pending"),
     ]
 
-    policy = models.CharField(max_length=10, choices=POLICY_CHOICES, default=PUBLIC, blank=False)
-    title = models.CharField(max_length = 100, blank=False)
-    content = models.TextField(max_length = 500, blank=False)
+    policy = models.CharField(
+        max_length=10, choices=POLICY_CHOICES, default=PUBLIC, blank=False
+    )
+    title = models.CharField(max_length=100, blank=False)
+    content = models.TextField(max_length=500, blank=False)
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    link = models.URLField(default='', blank=False)
-    space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='posts', blank=True, null=True)
-    favourites = models.ManyToManyField(User, related_name='favourites', blank=True)
-    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)                                                                            
+    link = models.URLField(default="", blank=False)
+    space = models.ForeignKey(
+        Space, on_delete=models.CASCADE, related_name="posts", blank=True, null=True
+    )
+    favourites = models.ManyToManyField(User, related_name="favourites", blank=True)
+    likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
     tags = TaggableManager(blank=True)
-    image = models.ImageField(default='post_default.jpg', upload_to='post_pics', blank=True)
+    wikitags = models.ManyToManyField(WikidataEntity, related_name='posts', blank=True)
+    # wikisubtypes = models.ManyToManyField(WikidataSubtype, related_name='posts', blank=True)
+    image = models.ImageField(
+        default="post_default.jpg", upload_to="post_pics", blank=True
+    )
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
-
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('post-detail', kwargs={'pk': self.pk})
+        return reverse("post-detail", kwargs={"pk": self.pk})
 
     class Meta:
-        ordering = ('-date_posted',)
+        ordering = ("-date_posted",)
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField(max_length = 200)
+    content = models.TextField(max_length=200)
     date_posted = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user.username} - {self.content[:20]}'
+        return f"{self.user.username} - {self.content[:20]}"

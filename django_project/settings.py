@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'spaces.apps.SpacesConfig',
     "crispy_forms",
+    'dal',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'django_project.wsgi.application'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
