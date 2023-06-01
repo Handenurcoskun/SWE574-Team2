@@ -44,10 +44,10 @@ class SpaceListView(ListView):
     context_object_name = 'spaces'
     ordering = ['-date_created']
 
-    def get_queryset(self):
-        user = self.request.user
-        user_categories = user.profile.categories.all()
-        return Space.objects.filter(category__in=user_categories).order_by('-date_created')
+#    def get_queryset(self):
+#        user = self.request.user
+#        user_categories = user.profile.categories.all()
+#        return Space.objects.filter(category__in=user_categories).order_by('-date_created')
 
 
 # class MySpacesListView(ListView):
