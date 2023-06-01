@@ -16,6 +16,11 @@
         <a href="{% url 'filter-tags' tag.id %}" class="badge badge-success">{{ tag.name }}</a>
       {% endfor %}
     </div>
+    {% if post.image %}
+        <img style="width: 100%;" src="{{ post.image.url }}" />
+    {% else %}
+        <img style="width: 100%;" src="/media/default.jpg" />
+    {% endif %}
     <form class="like-form">
       {% csrf_token %}
       <input type="hidden" name="post_id" value="{{ post.id }}">
